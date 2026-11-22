@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICTB · Калькулятор звукоизоляции</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--or:#FF5E00;--ink:#111;--gr:#5f5f5f;--bl:#1f4fff;--pale:#fff4ec;--ok:#18a058;--bad:#e0342b;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:#fff;background-image:linear-gradient(rgba(0,0,0,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.045) 1px,transparent 1px);background-size:36px 36px}
+.top{height:8px;background:var(--or)}
+header{display:flex;align-items:center;gap:14px;padding:16px 28px;border-bottom:2px solid var(--ink);background:#fff}
+.logo{background:var(--ink);color:#fff;font-family:var(--mono);font-weight:700;font-size:16px;padding:6px 11px;letter-spacing:.08em}
+.ttl{font-family:var(--mono);font-size:14px;color:var(--gr);letter-spacing:.06em}
+.hr{margin-left:auto;font-family:'Press Start 2P',monospace;font-size:10px;color:var(--or)}
+.wrap{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 70px)}
+#nav{border-right:2px solid var(--ink);background:#fff;padding:20px 14px;display:flex;flex-direction:column;gap:8px}
+.nb{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;padding:12px 12px;border:2px solid var(--ink);font-weight:700;font-size:15px;background:#fff}
+.nb:hover{background:var(--pale)}
+.nb.on{background:var(--ink);color:#fff}
+.nn{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--or)}
+.sub{display:flex;flex-direction:column;margin:-4px 0 4px 16px;border-left:3px solid var(--or)}
+.sub button{all:unset;cursor:pointer;padding:9px 12px;font-size:14px;font-weight:600;color:var(--gr)}
+.sub button.on{color:var(--ink);background:var(--pale)}
+main{padding:26px 34px 60px;max-width:1180px}
+#main{display:flex;flex-direction:column;gap:18px}
+.h1 .kick{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--or);font-weight:700}
+.h1 h1{margin:4px 0 0;font-size:34px;font-weight:900;letter-spacing:-.02em}
+.card{background:#fff;border:2px solid var(--ink);padding:18px 20px}
+.bld{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.f{display:flex;flex-direction:column;gap:6px}
+label,.lbl{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gr)}
+small,.muted{color:var(--gr);font-size:12px}
+select,input{font:inherit;font-size:14px;border:2px solid var(--ink);padding:8px 10px;background:#fff;border-radius:0;min-width:0}
+select:focus,input:focus{outline:3px solid var(--or);outline-offset:0}
+.scene{display:grid;grid-template-columns:1fr 330px 1fr;gap:16px;align-items:center}
+.scene.v{grid-template-columns:1fr;justify-items:center}
+.scene.v .room{width:min(520px,100%)}
+.room{border:2px solid var(--ink);background:var(--pale);padding:14px;display:flex;flex-direction:column;gap:10px}
+.room .tag,.mbox .tag{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--or)}
+.room select{width:100%}
+.consbox{background:#fff;border:2px solid var(--ink);padding:8px;text-align:center}
+.scene.v .consbox{width:min(520px,100%)}
+.cons{width:100%;height:auto;display:block}
+.cons .dim{font:600 12px var(--mono);fill:#111}
+.cons .num{font:700 11px Inter;fill:#fff}
+.cap{font-family:var(--mono);font-size:11px;color:var(--gr);margin-top:4px}
+.norm{display:flex;gap:16px;align-items:center;border:2px solid var(--ink);background:var(--ink);color:#fff;padding:14px 18px;flex-wrap:wrap}
+.norm .nv{display:flex;flex-direction:column;border-right:1px solid #444;padding-right:16px}
+.norm .nv .lbl{color:#bbb}
+.norm .nv b{font-family:'Press Start 2P',monospace;font-size:18px;color:var(--or);margin-top:6px}
+.nsrc{flex:1;min-width:260px;font-size:13px;line-height:1.45;color:#eee}
+.nsrc b{color:#fff}
+.norm.warn{background:#fff;color:var(--bad)}
+.ch{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ch b{font-size:17px}
+.ch span{font-family:var(--mono);font-size:12px;color:var(--gr)}
+.lrow{display:grid;grid-template-columns:28px 1fr 120px 104px;gap:8px;align-items:center;padding:8px 0;border-top:1px dashed #ccc}
+.ln{width:24px;height:24px;border-radius:50%;background:var(--or);color:#fff;font-weight:700;font-size:12px;display:grid;place-items:center}
+.lh{display:flex;align-items:center;gap:4px}
+.lh input{width:84px}
+.lh span{font-family:var(--mono);font-size:12px;text-transform:none;color:var(--gr)}
+.lbtns{display:flex;gap:4px}
+.lbtns button{width:32px;height:34px;border:2px solid var(--ink);background:#fff;cursor:pointer;font-weight:700}
+.lbtns button:hover{background:var(--pale)}
+.lsrc{grid-column:2/5;font-size:11.5px;color:var(--gr);line-height:1.35}
+.mfr{font-family:var(--mono);font-size:10px;background:var(--bl);color:#fff;padding:1px 5px;letter-spacing:.04em}
+.lfoot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.pl{display:flex;align-items:center;gap:8px;text-transform:none;font-family:Inter;font-size:13px;color:var(--ink);letter-spacing:0;flex-wrap:wrap}
+.pl input{width:100px}
+button.primary,button.ghost{font:700 15px Inter;padding:12px 20px;border:2px solid var(--ink);cursor:pointer}
+button.primary{background:var(--or);color:#fff;box-shadow:4px 4px 0 var(--ink)}
+button.primary:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+button.primary.dark{background:var(--ink)}
+button.ghost{background:#fff}
+.go{display:flex;justify-content:flex-end}
+.go .primary{font-size:18px;padding:16px 34px;font-family:'Press Start 2P',monospace;font-size:13px}
+.res{display:flex;flex-direction:column;gap:12px}
+.verdict{display:flex;align-items:center;gap:16px;padding:16px 18px;border:2px solid var(--ink);flex-wrap:wrap}
+.verdict span{font-family:'Press Start 2P',monospace;font-size:18px}
+.verdict small{font-size:15px;color:inherit;font-weight:600}
+.verdict.ok{background:var(--ok);color:#fff}
+.verdict.bad{background:var(--bad);color:#fff}
+.verdict.na{background:#eee}
+.sub2{font-size:13px;color:var(--gr)}
+.chart svg{width:100%;height:auto;display:block;border:1px solid #ddd}
+.meth{font-size:13px}
+.meth span{color:var(--gr)}
+.notes{background:#fff8e6;border-left:4px solid #e7a400;padding:10px 12px;font-size:13px;display:flex;flex-direction:column;gap:4px}
+.lock{display:flex;gap:18px;align-items:center;justify-content:space-between;border:2px dashed var(--ink);padding:16px;background:repeating-linear-gradient(45deg,#fff,#fff 10px,#fafafa 10px,#fafafa 20px);flex-wrap:wrap}
+.lock span{font-size:13px;color:var(--gr)}
+.err{border-color:var(--bad);color:var(--bad);font-size:14px;line-height:1.5}
+.prose{font-size:14px;line-height:1.6}
+.prose h3{margin:18px 0 6px;font-size:16px}
+#modal{position:fixed;inset:0;background:rgba(17,17,17,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+#modal.on{display:flex}
+.mbox{background:#fff;border:2px solid var(--ink);box-shadow:8px 8px 0 var(--or);max-width:640px;width:100%;padding:24px;position:relative;max-height:92vh;overflow:auto}
+.mbox h2{margin:8px 0;font-size:24px;font-weight:900}
+.mbox p{font-size:14px;line-height:1.5;color:#333}
+.x{position:absolute;right:12px;top:10px;border:0;background:none;font-size:20px;cursor:pointer}
+.obj{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.obj label{display:flex;flex-direction:column;gap:4px}
+.pay{display:flex;flex-direction:column;gap:12px;border-top:2px solid var(--ink);padding-top:14px}
+.fmts{display:flex;gap:12px;flex-wrap:wrap}
+#repmsg{margin-top:10px}
+#tests{font-family:var(--mono);font-size:12px;white-space:pre-wrap}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;font-weight:700;font-size:14px;text-decoration:none;border:2px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.btn.k{background:var(--ink);color:#fff}
+.btn.wa{background:#25D366;border-color:#25D366;color:#fff}
+.btn.kaspi{background:#f14635;border-color:#f14635;color:#fff}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));border-top:2px solid var(--ink);border-left:2px solid var(--ink);background:#fff}
+.step{padding:16px 14px 18px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.step .sn{font-family:var(--mono);font-weight:700;font-size:28px;color:var(--or);line-height:1}
+.step b{display:block;margin-top:8px;font-size:15px}
+.step p{font-size:13.5px;margin:6px 0 0;color:#333;line-height:1.45}
+.prods{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.prods button{all:unset;cursor:pointer;border:2px solid var(--ink);padding:8px 12px;font-weight:700;font-size:14px;display:flex;flex-direction:column;gap:2px}
+.prods button b{font-family:var(--mono);color:var(--or);font-size:13px}
+.prods button.on{background:var(--ink);color:#fff}
+.code{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border:2px solid var(--ink);background:var(--pale);padding:12px 14px;margin-top:8px}
+.code b{font-family:var(--mono);font-size:22px;letter-spacing:.06em}
+.code .price{margin-left:auto;font-family:'Press Start 2P',monospace;font-size:13px;color:var(--or)}
+button.sm{padding:6px 10px;font-size:12px;box-shadow:none}
+.pstep{display:grid;grid-template-columns:44px 1fr;gap:10px;border-top:1px dashed #bbb;padding:14px 0}
+.pstep .sn{font-family:var(--mono);font-weight:700;font-size:24px;color:var(--or)}
+.pstep b{display:block;margin-bottom:8px;font-size:15px}
+.pstep small{display:block;margin-top:8px}
+.ulk{display:flex;gap:10px;flex-wrap:wrap}
+.ulk input{width:140px;font-family:var(--mono);font-size:20px;letter-spacing:.15em}
+.bad{color:var(--bad);font-size:13px;font-weight:600}
+#dlbox{border-top:2px solid var(--ink);margin-top:10px;padding-top:12px}
+.adm{display:flex;flex-direction:column;gap:14px;max-width:520px}
+.adm label{display:flex;flex-direction:column;gap:6px}
+.admres{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--ink);color:#fff;padding:16px}
+.admres .lbl{color:#bbb;width:100%}
+.admres b{font-family:'Press Start 2P',monospace;font-size:26px;color:var(--or)}
+.foot{border-top:2px solid var(--ink);margin-top:40px;padding-top:24px;display:flex;flex-direction:column;gap:16px}
+.foot h2{margin:0;font-size:26px;font-weight:900}
+.contacts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.contacts span{font-size:13px;color:var(--gr)}
+@media (max-width:900px){.wrap{grid-template-columns:1fr}#nav{border-right:0;border-bottom:2px solid var(--ink);flex-direction:row;flex-wrap:wrap}.scene{grid-template-columns:1fr}.bld,.obj{grid-template-columns:1fr}.lrow{grid-template-columns:28px 1fr}.lh,.lbtns{grid-column:2}.lsrc{grid-column:1/3}main{padding:18px}}
+</style>
+</head>
+<body>
+<div class="top"></div>
+<header><div class="logo">ICTB</div><div class="ttl">ЗВУКОИЗОЛЯЦИЯ · ОНЛАЙН-РАСЧЁТ</div><div class="hr">СП РК 2.04-105-2012</div></header>
+<div class="wrap"><nav id="nav"></nav><main><div id="main"></div>
+<section class="foot" id="how">
+  <h2>Как получить отчёт</h2>
+  <div id="howsteps"></div>
+  <div class="contacts"><a class="btn wa" href="https://wa.me/77477323163">WhatsApp +7 747 732 31 63</a><a class="btn k" href="https://t.me/Nurdauletamirov">Telegram @Nurdauletamirov</a><a class="btn" href="https://instagram.com/ictb_courses">Instagram @ictb_courses</a><a class="btn" href="../">Курсы ICTB</a><span>Ответ 9:00–20:00 (Астана)</span></div>
+  <div class="contacts"><span>Расчёт и график — бесплатно. Отчёт: стена — 5 000 ₸; перекрытие, воздушный шум — 2 500 ₸; ударный шум — 2 500 ₸.</span></div>
+</section></main></div>
+<div id="modal"></div>
+<script>
+// ============================================================
+// ЯДРО РАСЧЁТА. Источники указаны у каждой таблицы/формулы.
+// ============================================================
+const SPRK = 'СП РК 2.04-105-2012';
+const NOM = [20,25,31.5,40,50,63,80,100,125,160,200,250,315,400,500,630,800,1000,1250,1600,2000,2500,3150,4000,5000,6300,8000,10000,12500,16000,20000];
+const I0 = NOM.indexOf(100);              // индекс полосы 100 Гц
+const BANDS = NOM.slice(I0, I0 + 16);     // 100…3150 Гц
+// Границы 1/3-октавных полос — СП РК 2.04-105-2012, табл. Б.2
+const B2 = {50:[45,56],63:[57,70],80:[71,88],100:[89,111],125:[112,140],160:[141,176],200:[177,222],250:[223,280],315:[281,353],400:[354,445],500:[446,561],630:[562,707],800:[708,890],1000:[891,1122],1250:[1123,1414],1600:[1415,1782],2000:[1783,2244],2500:[2245,2828],3150:[2829,3563],4000:[3564,4489],5000:[4490,5657]};
+function bandIdx(f){
+  for (let i = 0; i < NOM.length; i++){
+    const n = NOM[i]; const b = B2[n] || [n*Math.pow(2,-1/6), n*Math.pow(2,1/6)];
+    if (f <= b[1] + 0.5) return i;
+  }
+  return NOM.length - 1;
+}
+const nomOf = i => NOM[Math.max(0, Math.min(NOM.length-1, Math.round(i)))];
+const r05 = x => Math.round(x*2)/2;
+const fmt = (x, d=1) => { if (x === null || x === undefined || isNaN(x)) return '—'; const v = Math.round(x*Math.pow(10,d))/Math.pow(10,d); return String(v).replace('.', ','); };
+function interp(tab, x){
+  if (x <= tab[0][0]) return tab[0][1];
+  const n = tab.length; if (x >= tab[n-1][0]) return tab[n-1][1];
+  for (let i = 1; i < n; i++) if (x <= tab[i][0]) { const [x0,y0] = tab[i-1], [x1,y1] = tab[i]; return y0 + (y1-y0)*(x-x0)/(x1-x0); }
+}
+
+// Оценочные кривые — СП РК 2.04-105-2012, табл. 4, строки 1 и 2
+const CURVE_R = [33,36,39,42,45,48,51,52,53,54,55,56,56,56,56,56];
+const CURVE_L = [62,62,62,62,62,62,61,60,59,58,57,54,51,48,45,42];
+
+// Индекс Rw — СП РК 2.04-105-2012, п. 4.1.21 (неблагоприятные — вниз)
+function indexRw(R){
+  let best = null;
+  for (let s = -40; s <= 40; s++){
+    const dev = R.map((r,i) => Math.max(0, CURVE_R[i] + s - r)); const sum = dev.reduce((a,b)=>a+b,0);
+    if (sum <= 32) best = {s, sum, dev, shifted: CURVE_R.map(c=>c+s)};
+  }
+  const dev0 = R.map((r,i) => Math.max(0, CURVE_R[i] - r));
+  return {...best, Rw: 52 + best.s, dev0, sum0: dev0.reduce((a,b)=>a+b,0)};
+}
+// Индекс Lnw — СП РК 2.04-105-2012, п. 4.1.22 (неблагоприятные — вверх)
+function indexLnw(L){
+  for (let s = -40; s <= 40; s++){
+    const dev = L.map((l,i) => Math.max(0, l - (CURVE_L[i] + s))); const sum = dev.reduce((a,b)=>a+b,0);
+    if (sum <= 32) return {s, sum, dev, shifted: CURVE_L.map(c=>c+s), Lnw: 60 + s};
+  }
+}
+
+// ---------- M1: массивная однослойная, СП РК прил. Б.1.2 ----------
+// fB — табл. Б.1 (h в мм), промежуточные γ интерполируются
+const FB_TAB = [[600,40000],[800,39000],[1000,37000],[1200,35000],[1400,33000],[1600,31000],[1800,29000]];
+function calcMassive({m, g, hmm, K, label}){
+  const steps = [], notes = [];
+  const coef = interp(FB_TAB, g); const fB = coef/hmm; const iB = bandIdx(fB);
+  const me = K*m; const RBraw = 20*Math.log10(me) - 12; const RB = r05(RBraw);
+  steps.push(`Поверхностная плотность: m = ${fmt(m,1)} кг/м²; K = ${fmt(K,2)} (${SPRK}, табл. Б.3); mэ = K·m = ${fmt(me,1)} кг/м² (ф. Б.2).`);
+  steps.push(`Абсцисса точки B (табл. Б.1): fB = ${Math.round(coef)}/${fmt(hmm,1)} = ${Math.round(fB)} Гц → по табл. Б.2 принимаем fB = ${nomOf(iB)} Гц.`);
+  steps.push(`Ордината точки B (ф. Б.1): RB = 20·lg mэ − 12 = 20·lg ${fmt(me,1)} − 12 = ${fmt(RBraw,2)} ≈ ${fmt(RB)} дБ.`);
+  const iC = iB + (65 - RB)/2;
+  steps.push(`Из точки B влево — горизонталь BA, вправо — отрезок BC с наклоном 6 дБ на октаву до RC = 65 дБ (${SPRK}, п. Б.1.2). Точка C на частоте ≈ ${Math.round(100*Math.pow(2,(iC-I0)/3))} Гц${iC > I0+15 ? ' — за пределами нормируемого диапазона, отрезок CD отсутствует' : ''}.`);
+  if (m < 100 || m > 800) notes.push(`m = ${fmt(m,0)} кг/м² вне диапазона 100–800 кг/м², для которого применима методика п. Б.1.2.`);
+  if (g < 600) notes.push('Плотность ниже 600 кг/м³ — fB принята по крайней строке табл. Б.1 (600 кг/м³).');
+  const R = BANDS.map((_,k) => { const i = I0 + k; return i <= iB ? RB : Math.min(65, RB + 2*(i - iB)); });
+  const pts = [{n:'B', i:iB, R:RB}]; if (iC <= I0+15) pts.push({n:'C', i:iC, R:65});
+  return {R, pts, steps, notes, method:'Однослойная массивная конструкция', clause:`${SPRK}, прил. Б, п. Б.1.2`};
+}
+
+// ---------- M2: тонкий лист, СП РК прил. Б.1.5, табл. Б.4 ----------
+function thinABCD(s){
+  const fB = s.a/s.h, fC = s.b/s.h, iB = bandIdx(fB), iC = bandIdx(fC);
+  const f = i => i < iB ? s.RB - 1.5*(iB - i) : (i <= iC ? (iC === iB ? s.RB : s.RB + (s.RC - s.RB)*(i - iB)/(iC - iB)) : s.RC + 2.5*(i - iC));
+  return {fB, fC, iB, iC, RB:s.RB, RC:s.RC, f};
+}
+function calcThin(s){
+  const A = thinABCD(s), steps = [];
+  steps.push(`Координаты точек B и C (${SPRK}, табл. Б.4, ${s.name}): fB = ${s.a}/${fmt(s.h,1)} = ${Math.round(A.fB)} Гц → ${nomOf(A.iB)} Гц, RB = ${fmt(s.RB)} дБ; fC = ${s.b}/${fmt(s.h,1)} = ${Math.round(A.fC)} Гц → ${nomOf(A.iC)} Гц, RC = ${fmt(s.RC)} дБ.`);
+  steps.push('Отрезок AB — наклон 4,5 дБ на октаву, CD — 7,5 дБ на октаву (п. Б.1.5).');
+  const R = BANDS.map((_,k) => r05(A.f(I0+k)));
+  return {R, pts:[{n:'B',i:A.iB,R:A.RB},{n:'C',i:A.iC,R:A.RC}], steps, notes:[], method:'Однослойная тонкая конструкция', clause:`${SPRK}, прил. Б, п. Б.1.5`};
+}
+
+// ---------- M3/M4: две обшивки с промежутком, СП РК Б.1.6–Б.1.9 ----------
+const TAB_B5 = [[1.4,2.0],[1.5,2.5],[1.6,3.0],[1.7,3.5],[1.8,4.0],[2.0,4.5],[2.2,5.0],[2.3,5.5],[2.5,6.0],[2.7,6.5],[2.9,7.0],[3.1,7.5],[3.4,8.0],[3.7,8.5],[4.0,9.0],[4.3,9.5],[4.6,10.0],[5.0,10.5]]; // табл. Б.5
+const TAB_B6 = [[15,22],[25,22],[50,24],[100,26],[150,27],[200,28]]; // табл. Б.6
+const TAB_B7 = [[0.2,2],[0.3,3],[0.4,4],[0.5,5],[1,5]];               // табл. Б.7 (пористо-волокнистый)
+function calcDouble({leaf1, leaf2, dmm, wool}){
+  const steps = [], notes = [], pts = [];
+  const withP = [...leaf1, ...leaf2].filter(s => s.a);
+  if (!withP.length) throw new Error('Ни у одного листа обшивки нет параметров табл. Б.4 — построить ABCD невозможно.');
+  const ref = withP.reduce((a,b) => b.h > a.h ? b : a);
+  const sig = l => l.map(s => s.id + ':' + s.h).sort().join('|');
+  const equal = sig(leaf1) === sig(leaf2);
+  const m1 = leaf1.reduce((a,s)=>a+s.m,0), m2 = leaf2.reduce((a,s)=>a+s.m,0);
+  const mf = wool ? wool.m : 0, mob = m1 + m2 + mf;
+  const d = dmm/1000;
+  const A = thinABCD(ref);
+  steps.push(`Обшивка 1: ${leaf1.map(s=>s.name+' '+fmt(s.h)+' мм').join(' + ')}; m1 = ${fmt(m1,2)} кг/м². Обшивка 2: ${leaf2.map(s=>s.name+' '+fmt(s.h)+' мм').join(' + ')}; m2 = ${fmt(m2,2)} кг/м². Воздушный промежуток d = ${fmt(dmm,0)} мм${wool ? `, заполнение — ${wool.name} ${fmt(wool.h,0)} мм, ${fmt(wool.m,2)} кг/м²` : ''}.`);
+  steps.push(`Частотная характеристика одного листа (${ref.name}, h = ${fmt(ref.h)} мм) по табл. Б.4 — вспомогательная линия ABCD: fB = ${ref.a}/${fmt(ref.h)} = ${Math.round(A.fB)} Гц → ${nomOf(A.iB)} Гц, RB = ${fmt(A.RB)} дБ; fC = ${ref.b}/${fmt(ref.h)} = ${Math.round(A.fC)} Гц → ${nomOf(A.iC)} Гц, RC = ${fmt(A.RC)} дБ.`);
+  const ratio = mob/ref.m; let dR1 = r05(interp(TAB_B5, ratio));
+  steps.push(`Общая поверхностная плотность mобщ = ${fmt(mob,2)} кг/м²; mобщ/m(листа) = ${fmt(mob,2)}/${fmt(ref.m,2)} = ${fmt(ratio,2)} → по табл. Б.5 ΔR1 = ${fmt(dR1)} дБ${ratio>5?' (отношение больше 5,0 — принято крайнее значение таблицы)':''}${ratio<1.4?' (отношение меньше 1,4 — принято крайнее значение таблицы)':''}.`);
+  let A1, iC2 = A.iC;
+  if (equal){
+    A1 = i => A.f(i) + dR1;
+    steps.push(`Обшивки одинаковые: вспомогательная линия A1B1C1D1 = ABCD + ΔR1 (п. Б.1.6 а).`);
+  } else {
+    const thinRef = withP.reduce((a,b) => b.h < a.h ? b : a); iC2 = bandIdx(thinRef.b/thinRef.h);
+    A1 = i => i <= A.iB ? A.f(i) + dR1 : (i <= iC2 ? A.RB + dR1 : A.RB + dR1 + 2.5*(i - iC2));
+    steps.push(`Обшивки разные (п. Б.1.8): A1B1 = AB + ΔR1 до fB = ${nomOf(A.iB)} Гц, горизонталь B1C1 до fC2 = ${thinRef.b}/${fmt(thinRef.h)} → ${nomOf(iC2)} Гц, далее 7,5 дБ на октаву.`);
+    if (Math.max(...withP.map(s=>s.h))/Math.min(...withP.map(s=>s.h)) > 2.5) notes.push('Соотношение толщин листов больше 2,5 — вне области п. Б.1.8.');
+  }
+  const fr = 60*Math.sqrt((m1+m2)/(d*m1*m2)); const ir = bandIdx(fr);
+  steps.push(`Частота резонанса (ф. Б.5): fр = 60·√((m1+m2)/(d·m1·m2)) = 60·√((${fmt(m1,2)}+${fmt(m2,2)})/(${fmt(d,3)}·${fmt(m1,2)}·${fmt(m2,2)})) = ${fmt(fr,1)} Гц → ${nomOf(ir)} Гц.`);
+  const RE = A1(ir-1), RF = A1(ir) - 4;
+  steps.push(`Точка E на 0,8·fр = ${nomOf(ir-1)} Гц: RE = ${fmt(r05(RE))} дБ (совпадает с A1B1C1D1). Точка F на fр = ${nomOf(ir)} Гц: RF = ${fmt(A1(ir))} − 4 = ${fmt(RF)} дБ.`);
+  pts.push({n:'E',i:ir-1,R:RE},{n:'F',i:ir,R:RF});
+  const H = interp(TAB_B6, dmm); const iK = ir + 9, RK = RF + H;
+  steps.push(`Точка K на 8·fр = ${nomOf(iK)} Гц: RK = RF + H = ${fmt(RF)} + ${fmt(H)} = ${fmt(RK)} дБ (H по табл. Б.6 при d = ${fmt(dmm,0)} мм${[15,25,50,100,150,200].includes(Math.round(dmm))?'':', по интерполяции'}).`);
+  const FK = i => RF + (RK - RF)*(i - ir)/9;
+  let RL; if (A.iB >= iK) RL = RK + 1.5*(A.iB - iK); else RL = FK(A.iB);
+  const dR2 = RL - A1(A.iB);
+  steps.push(A.iB >= iK
+    ? `От K отрезок KL с наклоном 4,5 дБ на октаву до fB = ${nomOf(A.iB)} Гц: RL = ${fmt(RL)} дБ.`
+    : `fB = ${nomOf(A.iB)} Гц < 8·fр: отрезок FK обрывается в точке L на fB, RL = ${fmt(RL)} дБ; точка K вспомогательная.`);
+  steps.push(`Поправка на воздушный промежуток ΔR2 = RL − R(A1B1C1D1 на fB) = ${fmt(RL)} − ${fmt(A1(A.iB))} = ${fmt(dR2)} дБ.`);
+  if (A.iB >= iK) pts.push({n:'K',i:iK,R:RK}); pts.push({n:'L',i:A.iB,R:RL});
+  const nDouble = [leaf1, leaf2].filter(l => l.length >= 2).length;
+  const dR3 = equal ? (nDouble === 2 ? 3 : nDouble === 1 ? 2 : 0) : 0;
+  if (!equal && nDouble) notes.push('Для разных обшивок из нескольких листов поправка ΔR3 не учитывается (в запас).');
+  let U;
+  if (equal){
+    const iM = A.iB + 1, iN = A.iC, RN = A1(A.iC) + dR2 + dR3;
+    steps.push(`Горизонтальный отрезок LM до ${nomOf(iM)} Гц. Точка ${dR3?'S':'N'} на fC = ${nomOf(iN)} Гц: R = RC + ΔR1 + ΔR2${dR3?' + ΔR3':''} = ${fmt(A.RC)} + ${fmt(dR1)} + ${fmt(dR2)}${dR3?' + '+dR3:''} = ${fmt(RN)} дБ${dR3?` (ΔR3 = ${dR3} дБ — ${nDouble===2?'обе обшивки':'одна обшивка'} из двух листов, п. Б.1.7)`:''}; далее наклон 7,5 дБ на октаву.`);
+    pts.push({n:'M',i:iM,R:RL},{n:dR3?'S':'N',i:iN,R:RN});
+    U = i => {
+      if (i <= ir - 1) return A1(i);
+      if (i === ir) return RF;
+      if (i <= Math.min(iK, A.iB)) return FK(i);
+      if (i <= A.iB) return RK + 1.5*(i - iK);
+      if (iN <= iM) return i <= iN ? RL : RN + 2.5*(i - iN);
+      if (i <= iM) return RL;
+      if (i <= iN) return RL + (RN - RL)*(i - iM)/(iN - iM);
+      return RN + 2.5*(i - iN);
+    };
+  } else {
+    steps.push(`Горизонтальный отрезок LM до fC2 = ${nomOf(iC2)} Гц, далее MN с наклоном 7,5 дБ на октаву (п. Б.1.8).`);
+    pts.push({n:'M',i:iC2,R:RL});
+    U = i => {
+      if (i <= ir - 1) return A1(i);
+      if (i === ir) return RF;
+      if (i <= Math.min(iK, A.iB)) return FK(i);
+      if (i <= A.iB) return RK + 1.5*(i - iK);
+      if (i <= iC2) return RL;
+      return RL + 2.5*(i - iC2);
+    };
+  }
+  if (ir >= A.iB) notes.push('Частота резонанса не ниже fB — конструкция вне области применения п. Б.1.6.');
+  let F = U, dR4 = 0;
+  if (wool && wool.h > 0){
+    const p = Math.min(1, wool.h/dmm);
+    dR4 = p < 0.2 ? 0 : r05(interp(TAB_B7, p));
+    const iQ = ir + 2; const RQ = (iQ <= A.iB ? FK(iQ) : U(iQ)) + dR4;
+    if (dR4 > 0){
+      steps.push(`Заполнение промежутка пористо-волокнистым материалом на ${Math.round(p*100)}% → ΔR4 = ${fmt(dR4)} дБ (табл. Б.7). Частота резонанса не меняется (п. Б.1.9). Точка Q на 1,6·fр = ${nomOf(iQ)} Гц: RQ = ${fmt(RQ - dR4)} + ${fmt(dR4)} = ${fmt(RQ)} дБ; далее характеристика параллельна незаполненному варианту, выше на ΔR4.`);
+      pts.push({n:'Q',i:iQ,R:RQ});
+      F = i => i <= ir ? U(i) : (i < iQ ? RF + (RQ - RF)*(i - ir)/(iQ - ir) : U(i) + dR4);
+    } else notes.push('Заполнение менее 20% толщины промежутка — ΔR4 не учитывается (табл. Б.7).');
+  }
+  const R = BANDS.map((_,k) => r05(F(I0+k)));
+  steps.push('Значения звукоизоляции округлены до 0,5 дБ.');
+  return {R, pts, steps, notes, method: wool ? 'Каркасно-обшивная конструкция с заполнением промежутка' : 'Каркасно-обшивная конструкция с воздушным промежутком', clause:`${SPRK}, прил. Б, пп. Б.1.6–Б.1.9`};
+}
+
+// ---------- ПЕРЕКРЫТИЯ ----------
+// Табл. 15 Климухина = табл. 10 Zvukoizol (СП 23-103-2003): Rw перекрытия по Rw0 плиты и fр
+const T15_COLS = [43,46,49,52,55,57];
+const T15 = {
+  lags:  {f:[160,200,250,315,400,500], v:[[53,54,55,56,57,58],[50,52,53,54,56,58],[49,51,52,53,55,57],[48,49,51,53,55,null],[47,48,50,52,null,null],[46,48,null,null,null,null]]},
+  screed:{f:[63,80,100,125,160,200], v:[[null,55,56,57,58,59],[53,54,55,56,57,58],[52,53,54,55,56,58],[51,52,53,54,55,57],[50,51,53,54,55,57],[47,49,51,53,null,null]]},
+  sand:  {f:[200,250,315,400,500], v:[[null,53,54,55,56,58],[50,52,53,54,55,57],[49,51,52,54,55,57],[48,50,51,53,55,57],[47,49,51,53,55,57]]}
+};
+// Табл. 17 Климухина (= табл. 12.7 Пособия, СП 23-103-2003): Lnw по Lnw0 и f0
+const T17_COLS = [86,84,82,80,78,76,74];
+const T17 = {
+  lags: {f:[160,200,250,315], v:[[59,58,56,55,54,54,53],[61,60,58,57,55,54,54],[62,61,59,58,56,55,55],[64,62,60,59,57,56,56]]},
+  m30:  {f:[100,125,160,200,250], v:[[60,58,56,54,52,51,50],[64,62,60,58,56,55,54],[68,66,64,62,60,59,58],[70,68,66,64,62,61,60],[72,70,68,66,64,63,62]]},
+  m60:  {f:[60,80,100,125,160,200], v:[[61,58,56,54,51,49,48],[62,59,57,56,53,52,51],[64,61,59,57,56,55,54],[66,63,61,59,58,57,56],[68,65,63,61,60,58,57],[70,68,66,64,62,60,59]]},
+  sand60:{f:[160,200,250,315], v:[[62,60,58,57,55,54,53],[65,63,61,59,58,57,56],[67,65,63,61,60,59,58],[71,69,67,66,64,63,62]]},
+  m120: {f:[60,80,100,125,160,200], v:[[59,56,54,52,50,48,47],[61,58,56,54,52,50,49],[63,60,58,57,55,53,52],[65,62,60,58,56,54,53],[67,64,62,60,58,56,55],[68,65,64,62,60,58,57]]},
+  sand120:{f:[160,200,250,315], v:[[61,58,56,55,53,52,51],[63,60,58,57,55,54,53],[65,63,61,59,58,57,56],[69,67,65,64,62,61,60]]}
+};
+// Табл. 18 Климухина (= табл. 12.5 Пособия): Lnw0 несущей плиты
+const T18 = [[150,86],[200,84],[250,82],[300,80],[350,78],[400,77],[450,76],[500,75],[550,74],[600,73]];
+function lnw0Of(m){
+  if (m > 600) return {v: 73 - (m - 600)/50, note:`m1 = ${fmt(m,0)} кг/м² больше 600 — Lnw0 получен экстраполяцией табл. 18 (как в примере Пособия, m = 750 → 70 дБ).`};
+  if (m < 150) return {v: 86, note:`m1 = ${fmt(m,0)} кг/м² меньше 150 — принято крайнее значение табл. 18 (86 дБ).`};
+  return {v: interp(T18, m), note: T18.some(r=>r[0]===Math.round(m)) ? '' : 'по интерполяции'};
+}
+// значение строки таблицы при данной частоте (по полосам) и столбце (с интерполяцией/экстраполяцией)
+function tabRow(tab, cols, x, fi, notes, label){
+  const fIdx = tab.f.map(f => bandIdx(f));
+  let i = fi;
+  if (i < fIdx[0]) { notes.push(`${label}: частота ${nomOf(fi)} Гц ниже табличного диапазона — принято по ${tab.f[0]} Гц.`); i = fIdx[0]; }
+  if (i > fIdx[fIdx.length-1]) { notes.push(`${label}: частота ${nomOf(fi)} Гц выше табличного диапазона — принято по ${tab.f[tab.f.length-1]} Гц; конструкция вне области таблицы.`); i = fIdx[fIdx.length-1]; }
+  const colVal = (ri) => {
+    const row = tab.v[ri];
+    const valAt = c => { if (row[c] !== null) return row[c]; // пустая ячейка → ближайшая по частоте в том же столбце
+      let best = null, bd = 99; tab.v.forEach((r,k)=>{ if (r[c]!==null && Math.abs(k-ri)<bd){bd=Math.abs(k-ri);best=r[c];} });
+      notes.push(`${label}: ячейка таблицы пуста — принято ближайшее значение того же столбца.`); return best; };
+    const asc = cols[0] < cols[1];
+    const cs = cols.map((c,k)=>[c,k]); if (!asc) cs.reverse();
+    if (x <= cs[0][0]) { if (x < cs[0][0]) notes.push(`${label}: значение ${fmt(x,1)} вне таблицы — принят крайний столбец.`); return valAt(cs[0][1]); }
+    const last = cs[cs.length-1];
+    if (x >= last[0]) {
+      if (x > last[0]) { const prev = cs[cs.length-2]; const slope = (valAt(last[1]) - valAt(prev[1]))/(last[0]-prev[0]); notes.push(`${label}: значение ${fmt(x,1)} вне таблицы — экстраполяция по двум крайним столбцам.`); return valAt(last[1]) + slope*(x-last[0]); }
+      return valAt(last[1]);
+    }
+    for (let k = 1; k < cs.length; k++) if (x <= cs[k][0]) { const a = cs[k-1], b = cs[k]; const va = valAt(a[1]), vb = valAt(b[1]); return va + (vb - va)*(x - a[0])/(b[0]-a[0]); }
+  };
+  let k = fIdx.findIndex(v => v >= i);
+  if (fIdx[k] === i) return colVal(k);
+  const a = colVal(k-1), b = colVal(k); return a + (b - a)*(i - fIdx[k-1])/(fIdx[k] - fIdx[k-1]);
+}
+function edAt(el, p, notes){
+  const pts = el.E; // [[нагрузка Па, Ед Па, ε]]
+  if (pts.length === 1 || p <= pts[0][0]) { if (p > pts[0][0]*1.05 && pts.length===1) notes.push(`${el.name}: Ед и ε известны только при ${pts[0][0]/1000} кПа, фактическая нагрузка ${fmt(p/1000,2)} кПа — приняты значения при ${pts[0][0]/1000} кПа.`); return {E: pts[0][1], eps: pts[0][2], interp:false}; }
+  const n = pts.length; if (p >= pts[n-1][0]) { if (p > pts[n-1][0]) notes.push(`${el.name}: нагрузка ${fmt(p/1000,2)} кПа больше табличной ${pts[n-1][0]/1000} кПа — приняты значения при ${pts[n-1][0]/1000} кПа.`); return {E: pts[n-1][1], eps: pts[n-1][2], interp:false}; }
+  for (let k = 1; k < n; k++) if (p <= pts[k][0]) { const t = (p - pts[k-1][0])/(pts[k][0]-pts[k-1][0]); return {E: pts[k-1][1] + t*(pts[k][1]-pts[k-1][1]), eps: pts[k-1][2] + t*(pts[k][2]-pts[k-1][2]), interp:true}; }
+}
+
+// plate — {m, g, hmm, K}; float — {elastic:[{mat,h}], m2, kind:'screed'|'sand'|'lags'} | null; roll — {name,dL}|null; ceil — 0/1/2
+function calcFloor({plate, elastic, m2, above, roll, ceil, pUse}){
+  const steps = [], notes = [], tabs = {}, stepsI = []; const stepsA = steps;
+  const slab = calcMassive({...plate});
+  const ix = indexRw(slab.R); const Rw0 = ix.Rw;
+  steps.push(`Несущая плита: m1 = ${fmt(plate.m,1)} кг/м². Частотная характеристика плиты построена по ${SPRK}, п. Б.1.2; индекс изоляции плитой Rw0 = ${Rw0} дБ (п. 4.1.21).`);
+  const L0 = lnw0Of(plate.m); let Lnw0 = L0.v; if (L0.note && L0.note !== 'по интерполяции') notes.push(L0.note);
+  stepsI.push(`Индекс приведённого уровня ударного шума под плитой Lnw0 = ${fmt(Lnw0,1)} дБ (Климухин, табл. 18 = Пособие, табл. 12.5${L0.note==='по интерполяции'?', по интерполяции':''}).`);
+  if (ceil){ const c = ceil === 2 ? 2 : 1; Lnw0 -= c; stepsI.push(`Подвесной потолок из листовых материалов${ceil===2?' с заполнением звукопоглотителем':''}: Lnw0 уменьшен на ${c} дБ (примечания к табл. 18) → ${fmt(Lnw0,1)} дБ.`); }
+  let Rw, Lnw, fr = null, f0 = null, curveRw = null, curveLnw = null;
+  if (elastic && elastic.length){
+    const p = pUse + m2*10;
+    steps.push(`Поверхностная плотность пола над звукоизоляционным слоем m2 = ${fmt(m2,1)} кг/м² (${above}). Нагрузка на звукоизоляционный слой p = ${pUse} + ${fmt(m2*10,0)} = ${fmt(p,0)} Па.`);
+    let inv = 0; const parts = [];
+    elastic.forEach(e => {
+      const r = edAt(e.mat, p, notes); const d = e.h/1000*(1 - r.eps); inv += d/r.E;
+      parts.push({e, r, d});
+      steps.push(`${e.mat.name}: d0 = ${fmt(e.h,1)} мм, Ед = ${fmt(r.E/1e5,2)}·10⁵ Па, ε = ${fmt(r.eps,2)}${r.interp?' (по интерполяции по нагрузке)':''} (${e.mat.src}); толщина в обжатом состоянии d = d0·(1 − ε) = ${fmt(d*1000,2)} мм.`);
+    });
+    let Ed, d;
+    if (parts.length === 1){ Ed = parts[0].r.E; d = parts[0].d; }
+    else { d = parts.reduce((a,b)=>a+b.d,0); Ed = d/inv; steps.push(`Несколько упругих слоёв работают последовательно (Пособие, п. 12.12): эквивалентный Ед = Σd / Σ(d/Ед) = ${fmt(Ed/1e5,2)}·10⁵ Па при d = ${fmt(d*1000,2)} мм.`); notes.push('Несколько упругих слоёв: эквивалентная жёсткость принята как у последовательно соединённых слоёв — уточните по протоколу испытаний.'); }
+    fr = 0.16*Math.sqrt(Ed*(plate.m + m2)/(d*plate.m*m2)); const ir = bandIdx(fr);
+    f0 = 0.16*Math.sqrt(Ed/(d*m2)); const i0 = bandIdx(f0);
+    steps.push(`Частота резонанса конструкции (Климухин, ф. 11): fр = 0,16·√(Ед·(m1+m2)/(d·m1·m2)) = ${fmt(fr,1)} Гц → ${nomOf(ir)} Гц.`);
+    const kind = elastic.some(e => e.mat.sand) ? 'sand' : 'screed';
+    const Erng = elastic.map(e=>edAt(e.mat,p,[]).E);
+    if (kind === 'screed' && (Ed < 3e5 || Ed > 10e5)) notes.push(`Ед = ${fmt(Ed/1e5,2)}·10⁵ Па вне диапазона 3·10⁵–10·10⁵ Па строк табл. 15/17 — результат ориентировочный, окончательно — по протоколу испытаний.`);
+    if (kind === 'screed' && (m2 < 60 || m2 > 120)) notes.push(`m2 = ${fmt(m2,0)} кг/м² вне диапазона 60–120 кг/м² строки табл. 15 — результат ориентировочный.`);
+    const t15 = T15[kind]; const nl = [];
+    let rw = tabRow(t15, T15_COLS, Math.min(Rw0, 57), ir, nl, 'Табл. 15');
+    if (Rw0 > 57){ const at57 = rw; rw = Rw0 + Math.min(0, at57 - 57); notes.push(`Rw0 = ${Rw0} дБ больше 57 — табл. 15 экстраполирована без прироста от пола (в запас): Rw = Rw0 + min(0; R57 − 57).`); }
+    if (Rw0 < 43) notes.push(`Rw0 = ${Rw0} дБ меньше 43 — принят крайний столбец табл. 15.`);
+    nl.forEach(n=>notes.push(n));
+    Rw = Math.floor(rw + 1e-9);
+    steps.push(`По табл. 15 (Климухин; = табл. 10 Zvukoizol, СП 23-103-2003), строка «${kind==='sand'?'покрытие пола на стяжке по звукоизоляционному слою из песка':'покрытие пола на монолитной стяжке по звукоизоляционному слою с Ед = 3·10⁵–10·10⁵ Па'}», при Rw0 = ${Rw0} дБ и fр = ${nomOf(ir)} Гц: Rw = ${fmt(rw,2)} → ${Rw} дБ (округлено в запас).`);
+    curveRw = {xs: t15.f, ys: t15.f.map(f => { const n=[]; const v = tabRow(t15, T15_COLS, Math.min(Rw0,57), bandIdx(f), n, ''); return Rw0>57 ? Rw0 + Math.min(0, v-57) : v; }), x: nomOf(ir), y: rw};
+    stepsI.push(`Частота собственных колебаний пола (Климухин, ф. 13): f0 = 0,16·√(Ед/(d·m2)) = 0,16·√(${fmt(Ed,0)}/(${fmt(d,4)}·${fmt(m2,1)})) = ${fmt(f0,1)} Гц → ${nomOf(i0)} Гц.`);
+    const rows = kind === 'sand' ? [['sand60',60],['sand120',120]] : [['m30',30],['m60',60],['m120',120]];
+    const nl2 = [];
+    const use = rows.filter((r,k) => (k < rows.length-1 && m2 <= rows[k+1][1] && (k===0 || m2 >= r[1])) || (k > 0 && m2 >= rows[k-1][1] && (k===rows.length-1 || m2 <= r[1])) || (m2 <= rows[0][1] && k===0) || (m2 >= rows[rows.length-1][1] && k===rows.length-1));
+    const valFor = (fi, nn) => { const vals = use.map(([k,m]) => [m, tabRow(T17[k], T17_COLS, Lnw0, fi, nn, 'Табл. 17')]); return vals.length === 1 ? vals[0][1] : interp(vals, m2); };
+    const ln = valFor(i0, nl2); [...new Set(nl2)].forEach(n=>notes.push(n));
+    if (m2 < rows[0][1]) notes.push(`m2 = ${fmt(m2,1)} кг/м² меньше ${rows[0][1]} кг/м² — принята строка табл. 17 с m = ${rows[0][1]} кг/м² (результат завышен в пользу конструкции, проверьте протоколом).`);
+    Lnw = Math.ceil(ln - 1e-9);
+    stepsI.push(`По табл. 17 (Климухин; = табл. 12.7 Пособия, СП 23-103-2003) при Lnw0 = ${fmt(Lnw0,1)} дБ, f0 = ${nomOf(i0)} Гц и m2 = ${fmt(m2,1)} кг/м²${rows.some(r=>r[1]===Math.round(m2))?'':' (интерполяция по поверхностной плотности пола, примечание к табл.)'}: Lnw = ${fmt(ln,2)} → ${Lnw} дБ (округлено в запас).`);
+    const fset = [...new Set(use.flatMap(([k]) => T17[k].f))].sort((a,b)=>a-b);
+    curveLnw = {xs: fset, ys: fset.map(f => valFor(bandIdx(f), [])), x: nomOf(i0), y: ln};
+    tabs.fr = fr; tabs.f0 = f0; tabs.Ed = Ed; tabs.d = d;
+  } else if (roll){
+    Rw = Rw0; Lnw = Math.ceil(Lnw0 - roll.dL - 1e-9);
+    steps.push(`Пол без звукоизоляционного слоя с рулонным покрытием «${roll.name}»: Rw = Rw0 = ${Rw} дБ (Климухин, п. 3.13).`);
+    stepsI.push(`Lnw = Lnw0 − ΔLnw = ${fmt(Lnw0,1)} − ${roll.dL} = ${Lnw} дБ (Пособие, ф. 12.6, табл. 12.6).`);
+  } else {
+    Rw = Rw0; Lnw = Math.ceil(Lnw0 - 1e-9);
+    steps.push(`Пол без звукоизоляционного слоя: Rw = Rw0 = ${Rw} дБ.`); stepsI.push(`Пол без звукоизоляционного слоя и без рулонного покрытия: Lnw = Lnw0 = ${Lnw} дБ.`);
+  }
+  return {Rw, Lnw, Rw0, Lnw0, slab, slabIx: ix, steps: stepsA, stepsI, notes, fr, f0, curveRw, curveLnw, tabs, method: elastic && elastic.length ? 'Перекрытие с полом на звукоизоляционном слое' : 'Перекрытие без звукоизоляционного слоя', clause:'Климухин А.А., табл. 15–18 (по СП 23-103-2003); Пособие к СП 51.13330, пп. 12.5–12.15'};
+}
+
+if (false && typeof module !== 'undefined') module.exports = {BANDS, I0, NOM, bandIdx, indexRw, indexLnw, calcMassive, calcThin, calcDouble, calcFloor, thinABCD, lnw0Of, T17, T15, fmt};
+
+// ============================================================
+// ДАННЫЕ: материалы и нормы. У каждой цифры — источник.
+// ============================================================
+const S107 = 'СП РК 2.04-107-2022, прил. А';
+const SB3 = 'СП РК 2.04-105-2012, табл. Б.3';
+const SB4 = 'СП РК 2.04-105-2012, табл. Б.4';
+const SKL16 = 'Климухин А.А., табл. 16 (= СП 23-103-2003, табл. 16; Пособие, табл. 12.2)';
+const MATS = [
+  // ---- массивные (п. Б.1.2) ----
+  {id:'rc', grp:'Массивные', name:'Железобетон', type:'massive', g:2500, K:1, vis:'concrete', defH:200, src:`γ = 2500 кг/м³ — ${S107}, п. 225; K = 1 (γ ≥ 1800) — СП РК 2.04-105-2012, п. Б.1.2`},
+  {id:'conc', grp:'Массивные', name:'Бетон тяжёлый на щебне', type:'massive', g:2400, K:1, vis:'concrete', defH:160, src:`γ = 2400 кг/м³ — ${S107}, п. 226; K = 1 — п. Б.1.2`},
+  {id:'brick', grp:'Массивные', name:'Кладка из полнотелого керамического кирпича', type:'massive', g:1800, K:1, vis:'brick', defH:120, src:`γ = 1800 кг/м³ — ${S107}, п. 206; K = 1 (γ ≥ 1800) — п. Б.1.2`},
+  {id:'brick_s', grp:'Массивные', name:'Кладка из силикатного кирпича', type:'massive', g:1800, K:1, vis:'brickS', defH:120, src:`γ = 1800 кг/м³ — ${S107}, п. 209; K = 1 — п. Б.1.2`},
+  {id:'brick_h16', grp:'Массивные', name:'Кладка из пустотного керамического кирпича (1600)', type:'massive', g:1600, K:1.1, vis:'brick', defH:120, src:`γ = 1600 кг/м³ — ${S107}, п. 213; K = 1,1 — ${SB3} (кладка 1500–1600)`},
+  {id:'brick_h14', grp:'Массивные', name:'Кладка из пустотного керамического кирпича (1400)', type:'massive', g:1400, K:1.2, vis:'brick', defH:120, src:`γ = 1400 кг/м³ — ${S107}, п. 214; K = 1,2 — ${SB3} (кладка 1200–1400)`},
+  {id:'brick_sh', grp:'Массивные', name:'Кладка из силикатного пустотного кирпича', type:'massive', g:1500, K:1.1, vis:'brickS', defH:120, src:`γ = 1500 кг/м³ — ${S107}, п. 216; K = 1,1 — ${SB3}`},
+  {id:'gas6', grp:'Массивные', name:'Газобетон / газосиликат D600', type:'massive', g:600, K:1.7, vis:'block', defH:100, src:`γ = 600 кг/м³ — ${S107}, п. 200; K = 1,7 — ${SB3}`},
+  {id:'gas8', grp:'Массивные', name:'Газобетон / пенобетон D800', type:'massive', g:800, K:1.6, vis:'block', defH:100, src:`γ = 800 кг/м³ — ${S107}, п. 199; K = 1,6 — ${SB3}`},
+  {id:'gas10', grp:'Массивные', name:'Газобетон / пенобетон D1000', type:'massive', g:1000, K:1.5, vis:'block', defH:100, src:`γ = 1000 кг/м³ — ${S107}, п. 198; K = 1,5 — ${SB3}`},
+  {id:'kb14', grp:'Массивные', name:'Керамзитобетон 1400 (B7,5)', type:'massive', g:1400, K:1.2, vis:'keramz', defH:120, src:`γ = 1400 кг/м³ — ${S107}, п. 148; K = 1,2 — ${SB3}`},
+  {id:'kb12', grp:'Массивные', name:'Керамзитобетон 1200 (B7,5)', type:'massive', g:1200, K:1.3, vis:'keramz', defH:120, src:`γ = 1200 кг/м³ — ${S107}, п. 149; K = 1,3 — ${SB3}`},
+  {id:'gyp', grp:'Массивные', name:'Гипсобетон, гипсовые плиты (1200)', type:'massive', g:1200, K:1.4, vis:'gypsum', defH:80, src:`γ = 1200 кг/м³, K = 1,4 — ${SB3}`},
+  {id:'pl_c', grp:'Штукатурки и стяжки', name:'Штукатурка цементно-песчаная', type:'massive', plaster:true, g:1800, K:1, vis:'plaster', defH:15, src:`γ = 1800 кг/м³ — ${S107}, п. 227; жёстко связанный слой — акустически однородная конструкция (Киселева, МАРХИ, п. 6.1)`},
+  {id:'pl_l', grp:'Штукатурки и стяжки', name:'Штукатурка известково-песчаная', type:'massive', plaster:true, g:1600, K:1, vis:'plaster', defH:15, src:`γ = 1600 кг/м³ — ${S107}, п. 229`},
+  {id:'pl_m', grp:'Штукатурки и стяжки', name:'Раствор сложный (песок, известь, цемент)', type:'massive', plaster:true, g:1700, K:1, vis:'plaster', defH:15, src:`γ = 1700 кг/м³ — ${S107}, п. 228`},
+  {id:'scr', grp:'Штукатурки и стяжки', name:'Стяжка цементно-песчаная', type:'massive', plaster:true, floorOnly:true, g:1800, K:1, vis:'screed', defH:50, src:`γ = 1800 кг/м³ — ${S107}, п. 227`},
+  {id:'scr_b', grp:'Штукатурки и стяжки', name:'Стяжка из тяжёлого бетона (армированная)', type:'massive', plaster:true, floorOnly:true, g:2400, K:1, vis:'screed', defH:60, src:`γ = 2400 кг/м³ — ${S107}, п. 226`},
+  // ---- тонкие листы (п. Б.1.5, табл. Б.4) ----
+  {id:'gkl850', grp:'Листовые', name:'Гипсокартон (ГКЛ) γ = 850', type:'thin', g:850, a:19000, b:38000, RB:34, RC:28, vis:'gkl', defH:12.5, src:`${SB4}, п. 6 (γ = 850): fB = 19000/h, fC = 38000/h, RB = 34, RC = 28 дБ`},
+  {id:'gkl1100', grp:'Листовые', name:'Гипсокартон (ГКЛ) γ = 1100', type:'thin', g:1100, a:19000, b:38000, RB:36, RC:30, vis:'gkl', defH:12.5, src:`${SB4}, п. 6 (γ = 1100): fB = 19000/h, fC = 38000/h, RB = 36, RC = 30 дБ. В тексте СП РК опечатка «380000/h» — принято 38000/h, как в строке γ = 850 и в примере Б.6`},
+  {id:'akuline', grp:'Листовые', name:'Vetonit АКУ-Лайн (ГКЛА) 12,5 мм', type:'thin', g:960, fixH:12.5, a:19000, b:38000, RB:35, RC:29, vis:'gklA', defH:12.5, mfr:true, src:`Масса 12 кг/м² при 12,5 мм — тех. лист Vetonit АКУ-Лайн № 2.2 (acoustic.kz); fB, fC — ${SB4} для ГКЛ; RB, RC — интерполяция табл. Б.4 между γ = 850 и 1100 по плотности 960 кг/м³`},
+  {id:'sdb', grp:'Листовые', name:'Саундлайн-dB (акустический триплекс) 16,5 мм', type:'thin', massOnly:true, fixH:16.5, mFix:20.5, vis:'sdb', defH:16.5, mfr:true, src:'Поверхностная плотность 20,5 кг/м² при толщине 16,5 мм — тех. лист Саундлайн-dB № 8 (acoustic.kz). Параметров табл. Б.4 нет — учитывается как масса обшивки, линия ABCD строится по другому листу'},
+  {id:'dvp', grp:'Листовые', name:'ДВП твёрдая γ = 1100', type:'thin', g:1100, a:19000, b:38000, RB:35, RC:29, vis:'wood', defH:6, src:`${SB4}, п. 8`},
+  {id:'dsp850', grp:'Листовые', name:'ДСП γ = 850', type:'thin', g:850, a:13000, b:26000, RB:32, RC:27, vis:'wood', defH:16, src:`${SB4}, п. 7`},
+  {id:'dsp650', grp:'Листовые', name:'ДСП γ = 650', type:'thin', g:650, a:13500, b:27000, RB:30.5, RC:26, vis:'wood', defH:16, src:`${SB4}, п. 7`},
+  {id:'acl', grp:'Листовые', name:'Асбоцементный лист γ = 1800', type:'thin', g:1800, a:9000, b:18000, RB:34, RC:28, vis:'acl', defH:8, src:`${SB4}, п. 5`},
+  {id:'steel', grp:'Листовые', name:'Сталь', type:'thin', g:7800, a:6000, b:12000, RB:40, RC:32, vis:'steel', defH:1, src:`${SB4}, п. 1`},
+  {id:'alu', grp:'Листовые', name:'Алюминиевые сплавы', type:'thin', g:2600, a:6000, b:12000, RB:32, RC:22, vis:'steel', defH:2, src:`${SB4}, п. 2 (RC = 22 дБ по СП РК; в Пособии — 32 дБ)`},
+  {id:'glass', grp:'Листовые', name:'Стекло силикатное', type:'thin', g:2500, a:6000, b:12000, RB:35, RC:29, vis:'glass', defH:6, src:`${SB4}, п. 3`},
+  {id:'oglass', grp:'Листовые', name:'Стекло органическое', type:'thin', g:1200, a:17000, b:34000, RB:37, RC:30, vis:'glass', defH:6, src:`${SB4}, п. 4`},
+  // ---- заполнение промежутка ----
+  {id:'air', grp:'Промежуток', name:'Воздушный промежуток', type:'air', g:0, vis:'air', defH:50, src:'СП РК 2.04-105-2012, п. Б.1.6'},
+  {id:'mw80', grp:'Промежуток', name:'Минераловатная плита γ = 80 (ПП-80)', type:'wool', g:80, vis:'wool', defH:50, src:'γ = 80 кг/м³ — СП РК 2.04-105-2012, пример В.6; ΔR4 — табл. Б.7'},
+  {id:'tacoustic', grp:'Промежуток', name:'ТЕХНОАКУСТИК (каменная вата) γ = 40', type:'wool', g:40, vis:'wool', defH:50, mfr:true, src:'γ = 40 кг/м³ — тех. лист ТЕХНОНИКОЛЬ № 3.211; ΔR4 — табл. Б.7 СП РК'},
+  {id:'tnshum', grp:'Промежуток', name:'ТЕХНОНИКОЛЬ Шумозащита (стекловолокно) γ = 17', type:'wool', g:17.25, vis:'woolY', defH:50, mfr:true, src:'γ = 17,25 кг/м³ — тех. лист ТЕХНОНИКОЛЬ № 3.435; ΔR4 — табл. Б.7 СП РК'},
+  {id:'shbm', grp:'Промежуток', name:'Шуманет-БМ (базальт) γ = 47', type:'wool', g:47, vis:'wool', defH:50, mfr:true, src:'γ = 47 кг/м³ — каталог Acoustic Group, с. 35 (acoustic.kz); ΔR4 — табл. Б.7 СП РК'},
+  {id:'sheco', grp:'Промежуток', name:'Шуманет-ЭКО (стекловолокно) γ = 30', type:'wool', g:30, vis:'woolY', defH:50, mfr:true, src:'γ = 30 кг/м³ — каталог Acoustic Group, с. 33 (acoustic.kz); ΔR4 — табл. Б.7 СП РК'},
+  // ---- системы с измеренной добавкой ΔR(f) ----
+  {id:'zips', grp:'Системы облицовки', name:'ЗИПС-Модуль (панели 70 мм + ГКЛ АКУ-Лайн), 83 мм', type:'zips', fixH:83, mFix:37, vis:'zips', defH:83, mfr:true,
+    dR:[1,6,10,12,16,16,20,19,20,20,19,19,22,21,21,18],
+    src:'ΔR(f) по полосам 100–3150 Гц, протокол НИИСФ РААСН (кирпичная стена 120 мм) — каталог Acoustic Group, с. 10 (acoustic.kz); 37 кг/м², 83 мм'},
+  // ---- полы: покрытия ----
+  {id:'lam', grp:'Покрытия пола', name:'Ламинат (основа ДВП)', type:'cover', floorOnly:true, g:1100, vis:'wood', defH:8, src:'γ принята как у ДВП твёрдой 1100 кг/м³ — СП РК 2.04-105-2012, табл. Б.4'},
+  {id:'parq', grp:'Покрытия пола', name:'Паркет / паркетная доска', type:'cover', floorOnly:true, g:700, vis:'parquet', defH:15, src:'γ = 700 кг/м³ — Климухин, пример 12'},
+  {id:'lino', grp:'Покрытия пола', name:'Линолеум (без подосновы)', type:'cover', floorOnly:true, g:1100, vis:'lino', defH:3, src:'γ = 1100 кг/м³ — Климухин, пример 11'},
+  {id:'plyw', grp:'Покрытия пола', name:'Фанера клееная', type:'cover', floorOnly:true, g:600, vis:'wood', defH:18, src:`γ = 600 кг/м³ — ${S107}, п. 222`},
+  {id:'r_tzil35', grp:'Рулонные покрытия (ΔLnw)', name:'ПВХ ТЗИЛ линолеум 3,5 мм', type:'roll', floorOnly:true, g:1100, dL:18, fixH:3.5, vis:'lino', defH:3.5, src:'ΔLnw = 18 дБ — Пособие, табл. 12.6'},
+  {id:'r_tzil41', grp:'Рулонные покрытия (ΔLnw)', name:'ПВХ ТЗИЛ линолеум 4,1 мм', type:'roll', floorOnly:true, g:1100, dL:20, fixH:4.1, vis:'lino', defH:4.1, src:'ΔLnw = 20 дБ — Пособие, табл. 12.6'},
+  {id:'r_relin', grp:'Рулонные покрытия (ΔLnw)', name:'Релин с пористым слоем 4,0 мм', type:'roll', floorOnly:true, g:1100, dL:16, fixH:4, vis:'lino', defH:4, src:'ΔLnw = 16 дБ — Пособие, табл. 12.6'},
+  {id:'r_tuft', grp:'Рулонные покрытия (ΔLnw)', name:'Тафтинговый ковёр 3,0 мм', type:'roll', floorOnly:true, g:300, dL:19, fixH:3, vis:'carpet', defH:3, src:'ΔLnw = 19 дБ — Пособие, табл. 12.6'},
+  {id:'r_vors', grp:'Рулонные покрытия (ΔLnw)', name:'Ворсолин 7,0 мм', type:'roll', floorOnly:true, g:300, dL:20, fixH:7, vis:'carpet', defH:7, src:'ΔLnw = 20 дБ — Пособие, табл. 12.6'},
+  // ---- полы: упругие слои (Ед, ε при нагрузке 2000/5000/10000 Па) ----
+  {id:'e_mw80', grp:'Звукоизоляционный слой', name:'Минплита полужёсткая 70–90 кг/м³', type:'elastic', floorOnly:true, g:80, E:[[2000,3.6e5,0.5],[5000,4.5e5,0.55]], vis:'wool', defH:30, src:SKL16},
+  {id:'e_mw100', grp:'Звукоизоляционный слой', name:'Минплита полужёсткая 95–100 кг/м³', type:'elastic', floorOnly:true, g:100, E:[[2000,4.0e5,0.5],[5000,5.0e5,0.55]], vis:'wool', defH:30, src:SKL16},
+  {id:'e_mw120', grp:'Звукоизоляционный слой', name:'Минплита жёсткая 110–125 кг/м³', type:'elastic', floorOnly:true, g:120, E:[[2000,4.5e5,0.5],[5000,5.5e5,0.5],[10000,7.0e5,0.6]], vis:'wool', defH:30, src:SKL16},
+  {id:'e_mw140', grp:'Звукоизоляционный слой', name:'Минплита жёсткая 130–150 кг/м³', type:'elastic', floorOnly:true, g:140, E:[[2000,5.0e5,0.4],[5000,6.0e5,0.45],[10000,8.0e5,0.55]], vis:'wool', defH:30, src:SKL16},
+  {id:'e_bas80', grp:'Звукоизоляционный слой', name:'Плиты из изовербазальтового волокна 70–90', type:'elastic', floorOnly:true, g:80, E:[[2000,1.9e5,0.1],[5000,2.0e5,0.15],[10000,2.6e5,0.2]], vis:'wool', defH:20, src:SKL16},
+  {id:'e_bas110', grp:'Звукоизоляционный слой', name:'Плиты из изовербазальтового волокна 100–120', type:'elastic', floorOnly:true, g:110, E:[[2000,2.7e5,0.08],[5000,3.0e5,0.1],[10000,4.0e5,0.15]], vis:'wool', defH:20, src:SKL16},
+  {id:'e_bas140', grp:'Звукоизоляционный слой', name:'Плиты из изовербазальтового волокна 125–150', type:'elastic', floorOnly:true, g:140, E:[[2000,3.6e5,0.07],[5000,5.0e5,0.08],[10000,6.5e5,0.1]], vis:'wool', defH:20, src:SKL16},
+  {id:'e_dvp', grp:'Звукоизоляционный слой', name:'ДВП мягкая 250 кг/м³', type:'elastic', floorOnly:true, g:250, E:[[2000,10e5,0.1],[5000,11e5,0.1],[10000,12e5,0.15]], vis:'wood', defH:12, src:SKL16},
+  {id:'e_cork', grp:'Звукоизоляционный слой', name:'Пробка прессованная 200 кг/м³', type:'elastic', floorOnly:true, g:200, E:[[2000,11e5,0.1],[5000,12e5,0.2],[10000,12.5e5,0.25]], vis:'cork', defH:10, src:SKL16},
+  {id:'e_sand', grp:'Звукоизоляционный слой', name:'Песок прокалённый (засыпка)', type:'elastic', floorOnly:true, sand:true, g:1400, E:[[2000,120e5,0.03],[5000,130e5,0.04],[10000,140e5,0.06]], vis:'sand', defH:60, src:SKL16},
+  {id:'e_izolon', grp:'Звукоизоляционный слой', name:'Изолон (ППЭ-Л)', type:'elastic', floorOnly:true, g:30, E:[[2000,2e5,0.05],[5000,3.4e5,0.1],[10000,4.2e5,0.2]], vis:'foam', defH:8, src:SKL16},
+  {id:'e_velimat', grp:'Звукоизоляционный слой', name:'Велимат', type:'elastic', floorOnly:true, g:30, E:[[2000,1.4e5,0.19],[5000,1.6e5,0.37],[10000,2.0e5,0.5]], vis:'foam', defH:8, src:SKL16},
+  {id:'e_ppex', grp:'Звукоизоляционный слой', name:'Пенополиэкс', type:'elastic', floorOnly:true, g:30, E:[[2000,1.8e5,0.02],[5000,2.5e5,0.1],[10000,3.2e5,0.2]], vis:'foam', defH:8, src:SKL16},
+  {id:'e_energo', grp:'Звукоизоляционный слой', name:'Энергофлекс / Пенофол / Вилатерм', type:'elastic', floorOnly:true, g:30, E:[[2000,2.7e5,0.04],[5000,3.8e5,0.1]], vis:'foam', defH:8, src:SKL16},
+  {id:'e_parkolag', grp:'Звукоизоляционный слой', name:'Парколаг', type:'elastic', floorOnly:true, g:30, E:[[2000,2.6e5,0.1],[5000,3.7e5,0.15],[10000,4.5e5,0.2]], vis:'foam', defH:8, src:SKL16},
+  {id:'e_thermo', grp:'Звукоизоляционный слой', name:'Термофлекс', type:'elastic', floorOnly:true, g:30, E:[[2000,4e5,0.03],[5000,4.8e5,0.1]], vis:'foam', defH:10, src:SKL16},
+  {id:'e_porilex', grp:'Звукоизоляционный слой', name:'Порилекс (НПЭ)', type:'elastic', floorOnly:true, g:30, E:[[2000,4.7e5,0.15],[5000,5.8e5,0.2]], vis:'foam', defH:8, src:SKL16},
+  {id:'e_etafom', grp:'Звукоизоляционный слой', name:'Этафом (ППЭ-Р)', type:'elastic', floorOnly:true, g:30, E:[[2000,6.4e5,0.02],[5000,8.5e5,0.1],[10000,9.2e5,0.2]], vis:'foam', defH:8, src:SKL16},
+  {id:'e_penoterm', grp:'Звукоизоляционный слой', name:'Пенотерм (НПП-ЛЭ)', type:'elastic', floorOnly:true, g:30, E:[[2000,6.6e5,0.1],[5000,8.5e5,0.2],[10000,9.2e5,0.25]], vis:'foam', defH:10, src:SKL16},
+  {id:'e_sh100g', grp:'Звукоизоляционный слой', name:'Шуманет-100 Гидро, 5 мм', type:'elastic', floorOnly:true, mfr:true, fixH:5, g:680, E:[[2000,0.5e6,0.15]], vis:'membrane', defH:5, src:'Ед ≤ 0,5 МПа, ε ≤ 0,15 при 2 кПа — тех. лист Шуманет-100 Гидро № 3.1 (acoustic.kz); приняты предельные значения'},
+  {id:'e_sh100k', grp:'Звукоизоляционный слой', name:'Шуманет-100 Комби, 5 мм', type:'elastic', floorOnly:true, mfr:true, fixH:5, g:500, E:[[2000,0.3e6,0.1]], vis:'membrane', defH:5, src:'Ед ≤ 0,3 МПа, ε ≤ 0,1 при 2 кПа — тех. лист Шуманет-100 Комби № 3.1 (acoustic.kz)'},
+  {id:'e_akuflex', grp:'Звукоизоляционный слой', name:'Акуфлекс, 4 мм', type:'elastic', floorOnly:true, mfr:true, fixH:4, g:75, E:[[2000,0.3e6,0.12]], vis:'fiber', defH:4, src:'Ед ≤ 0,3 МПа, ε ≤ 0,12 при 2 кПа — тех. лист Акуфлекс № 2.0 (acoustic.kz)'},
+  {id:'e_akuflexs', grp:'Звукоизоляционный слой', name:'Акуфлекс-Супер, 3 мм', type:'elastic', floorOnly:true, mfr:true, fixH:3, g:105, E:[[2000,0.3e6,0.25]], vis:'fiber', defH:3, src:'Ед = 0,3 МПа, ε = 0,25 при 2 кПа — тех. лист Акуфлекс-Супер № 13 (acoustic.kz)'},
+  {id:'e_c2', grp:'Звукоизоляционный слой', name:'Шумостоп-С2 (стекловолокно), 20 мм', type:'elastic', floorOnly:true, mfr:true, g:90, E:[[2000,0.3e6,0.10]], vis:'woolY', defH:20, src:'Ед ≤ 0,3 МПа, ε ≤ 10% при 2 кПа, γ = 90 кг/м³ — тех. лист Шумостоп-С2 № 2.4 (acoustic.kz)'},
+  {id:'e_k2', grp:'Звукоизоляционный слой', name:'Шумостоп-К2 (базальт), 20 мм', type:'elastic', floorOnly:true, mfr:true, g:105, E:[[2000,0.4e6,0.10]], vis:'wool', defH:20, src:'Ед ≤ 0,4 МПа, ε ≤ 10% при 2 кПа, γ = 105 кг/м³ — тех. лист Шумостоп-К2 № 2.0 (acoustic.kz)'},
+  {id:'e_s20', grp:'Звукоизоляционный слой', name:'Акуфлор-S20 (стекловолокно), 20 мм', type:'elastic', floorOnly:true, mfr:true, g:90, E:[[2000,0.3e6,0.05]], vis:'woolY', defH:20, src:'Ед ≤ 0,3 МПа, ε ≤ 5% при 2 кПа, γ = 90 кг/м³ — тех. лист Акуфлор-S20 № 2.1 (acoustic.kz)'},
+  // ---- потолок ----
+  {id:'ceil', grp:'Потолок снизу', name:'Подвесной потолок из ГКЛ/ГВЛ', type:'ceil', floorOnly:true, g:850, vis:'gkl', defH:12.5, src:'Lnw0 − 1 дБ — примечание 1 к табл. 18 Климухина (табл. 12.5 Пособия)'},
+  {id:'ceilw', grp:'Потолок снизу', name:'Звукопоглотитель над подвесным потолком', type:'ceilfill', floorOnly:true, g:40, vis:'wool', defH:50, src:'Lnw0 − 2 дБ (вместе с потолком) — примечание 2 к табл. 18 Климухина'},
+  {id:'ceilair', grp:'Потолок снизу', name:'Пространство подвесного потолка (воздух)', type:'ceilair', floorOnly:true, g:0, vis:'air', defH:100, src:'Учитывается только как высота конструкции'}
+];
+const MAT = Object.fromEntries(MATS.map(m => [m.id, m]));
+
+// ============================================================
+// НОРМЫ — СП РК 2.04-105-2012, табл. 2 (развитие СН РК 2.04-02-2011)
+// Rw/Lnw: число или {A,Б,В}. dir:true — для перекрытия важно, кто сверху (A) и кто снизу (B)
+// ============================================================
+const BUILD = {
+  res: {name:'Жилой дом', cats:true, rooms:{kv:'Помещение квартиры', kv2:'Помещение соседней квартиры', mop:'Лестничная клетка, холл, коридор, вестибюль', attic:'Используемый чердак', shop:'Магазин', rest:'Ресторан, кафе, спортивный зал', office:'Административное помещение, офис', same:'Другая комната этой же квартиры', wc:'Санузел этой же квартиры'},
+    rules:[
+      {k:'floor', a:['kv'], b:['kv2','mop','attic'], Rw:{A:54,'Б':52,'В':50}, Lnw:{A:55,'Б':58,'В':60}, p:1, t:'Перекрытия между помещениями квартир и отделяющие помещения квартир от холлов лестничных клеток и используемых чердачных помещений', fn:'Требование предъявляют также к передаче ударного шума в жилые помещения при ударном воздействии на пол смежной квартиры (сноска 1 к табл. 2).'},
+      {k:'floor', a:['kv'], b:['shop'], dir:true, Rw:{A:59,'Б':57,'В':57}, Lnw:{A:55,'Б':58,'В':58}, p:2, t:'Перекрытия между помещениями квартир и расположенными под ними магазинами', fn:'При ударном воздействии на пол магазина требование Lnw = 45 (кат. А) / 48 дБ (кат. Б, В) — сноска 2 к табл. 2.'},
+      {k:'floor', a:['same'], b:['kv'], Rw:{A:47,'Б':45,'В':43}, Lnw:{A:63,'Б':66,'В':68}, p:3, t:'Перекрытия между комнатами в квартире в двух уровнях'},
+      {k:'floor', a:['kv'], b:['rest'], dir:true, Rw:{A:62,'Б':60,'В':60}, Lnw:{A:55,'Б':58,'В':58}, p:6, t:'Перекрытия между помещениями квартиры и расположенными под ними ресторанами, кафе, спортивными залами', fn:'При ударном воздействии на пол ресторана/зала Lnw = 45 (кат. А) / 48 дБ (кат. Б, В) — сноска 2.'},
+      {k:'floor', a:['kv'], b:['office'], dir:true, Rw:{A:52,'Б':50,'В':50}, Lnw:{A:58,'Б':60,'В':60}, p:7, t:'Перекрытия между помещениями квартиры и расположенными под ними административными помещениями, офисами'},
+      {k:'wall', a:['kv'], b:['kv2','mop'], Rw:{A:54,'Б':52,'В':50}, p:8, t:'Стены и перегородки между квартирами, между помещениями квартир и лестничными клетками, холлами, коридорами, вестибюлями'},
+      {k:'wall', a:['kv'], b:['shop'], Rw:{A:59,'Б':57,'В':57}, p:9, t:'Стены между помещениями квартир и магазинами'},
+      {k:'wall', a:['kv'], b:['rest'], Rw:{A:62,'Б':60,'В':60}, p:10, t:'Стены и перегородки, отделяющие помещения квартир от ресторанов, кафе, спортивных залов'},
+      {k:'wall', a:['kv'], b:['same'], Rw:{A:43,'Б':41,'В':41}, p:11, t:'Перегородки между комнатами, между кухней и комнатой в квартире'},
+      {k:'wall', a:['kv'], b:['wc'], Rw:47, p:12, t:'Перегородки между санузлом и комнатой одной квартиры'}
+    ]},
+  dorm: {name:'Общежитие', cats:false, rooms:{dr:'Жилая комната общежития', dr2:'Соседняя жилая комната', kbo:'Помещение культурно-бытового обслуживания', mop:'Холл, вестибюль, лестничная клетка'},
+    rules:[
+      {k:'floor', a:['dr'], b:['dr2'], Rw:50, Lnw:60, p:4, t:'Перекрытия между жилыми помещениями общежитий'},
+      {k:'floor', a:['kbo'], b:['kbo','mop','dr','dr2'], Rw:47, Lnw:65, p:5, t:'Перекрытия, отделяющие помещения культурно-бытового обслуживания общежитий друг от друга и от помещений общего пользования'},
+      {k:'wall', a:['dr'], b:['dr2'], Rw:50, p:13, t:'Стены и перегородки между комнатами общежитий'},
+      {k:'wall', a:['kbo'], b:['kbo','mop'], Rw:47, p:14, t:'Стены и перегородки, отделяющие помещения культурно-бытового обслуживания общежитий друг от друга и от помещений общего пользования'}
+    ]},
+  hotel: {name:'Гостиница', cats:true, rooms:{nom:'Номер', nom2:'Соседний номер', mop:'Вестибюль, холл, буфет, лестничная клетка', rest:'Ресторан, кафе'},
+    rules:[
+      {k:'floor', a:['nom'], b:['nom2'], Rw:{A:52,'Б':50,'В':48}, Lnw:{A:57,'Б':60,'В':62}, p:16, t:'Перекрытия между номерами'},
+      {k:'floor', a:['nom'], b:['mop'], Rw:{A:54,'Б':52,'В':52}, Lnw:{A:55,'Б':58,'В':58}, p:17, t:'Перекрытия, отделяющие номера от помещений общего пользования', fn:'При ударном воздействии на пол помещения общего пользования Lnw = 50 / 53 дБ — сноска 2.'},
+      {k:'floor', a:['nom'], b:['rest'], Rw:{A:62,'Б':59,'В':59}, Lnw:{A:57,'Б':60,'В':60}, p:18, t:'Перекрытия, отделяющие номера от помещений ресторанов, кафе', fn:'При ударном воздействии на пол ресторана Lnw = 45 / 48 дБ — сноска 2.'},
+      {k:'wall', a:['nom'], b:['nom2'], Rw:{A:52,'Б':50,'В':48}, p:19, t:'Стены и перегородки между номерами'},
+      {k:'wall', a:['nom'], b:['mop'], Rw:{A:54,'Б':52,'В':52}, p:20, t:'Стены и перегородки, отделяющие номера от помещений общего пользования'},
+      {k:'wall', a:['nom'], b:['rest'], Rw:{A:62,'Б':59,'В':59}, p:21, t:'Стены и перегородки, отделяющие номера от ресторанов, кафе'}
+    ]},
+  adm: {name:'Административное здание, офис', cats:true, rooms:{cab:'Кабинет', work:'Рабочая комната', mop:'Вестибюль, холл, буфет', noisy:'Помещение с источниками шума (машбюро и т.п.)'},
+    rules:[
+      {k:'floor', a:['cab','work'], b:['cab','work','mop'], Rw:{A:52,'Б':50,'В':50}, Lnw:{A:63,'Б':66,'В':66}, p:22, t:'Перекрытия между рабочими комнатами, кабинетами, секретариатами и отделяющие эти помещения от помещений общего пользования'},
+      {k:'floor', a:['cab','work'], b:['noisy'], Rw:{A:54,'Б':52,'В':52}, Lnw:{A:60,'Б':63,'В':63}, p:23, t:'Перекрытия, отделяющие рабочие комнаты, кабинеты от помещений с источниками шума'},
+      {k:'wall', a:['cab'], b:['cab','work'], Rw:{A:51,'Б':49,'В':49}, p:24, t:'Стены и перегородки между кабинетами и отделяющие кабинеты от рабочих комнат'},
+      {k:'wall', a:['work'], b:['mop','noisy'], Rw:{A:50,'Б':48,'В':48}, p:25, t:'Стены и перегородки, отделяющие рабочие комнаты от помещений общего пользования и от помещений с источниками шума'},
+      {k:'wall', a:['cab'], b:['mop','noisy'], Rw:{A:54,'Б':52,'В':52}, p:26, t:'Стены и перегородки, отделяющие кабинеты от помещений общего пользования и шумных помещений'}
+    ]},
+  hosp: {name:'Больница, санаторий', cats:false, rooms:{ward:'Палата', doc:'Кабинет врача', op:'Операционная', mop:'Помещение общего пользования (вестибюль, холл)', food:'Столовая, кухня', other:'Другое помещение'},
+    rules:[
+      {k:'floor', a:['ward','doc'], b:['ward','doc'], Rw:47, Lnw:60, p:27, t:'Перекрытия между палатами, кабинетами врачей'},
+      {k:'floor', a:['op'], b:['op','ward','doc'], Rw:57, Lnw:60, p:28, t:'Перекрытия между операционными и отделяющие операционные от палат и кабинетов'},
+      {k:'floor', a:['ward','doc'], b:['mop'], Rw:52, Lnw:63, p:29, t:'Перекрытия, отделяющие палаты, кабинеты врачей от помещений общего пользования'},
+      {k:'floor', a:['ward','doc'], b:['food'], Rw:57, Lnw:50, p:30, t:'Перекрытия, отделяющие палаты, кабинеты врачей от столовых, кухонь', fn:'Lnw = 50 дБ — требование при ударном воздействии на пол столовой/кухни (сноска 2).'},
+      {k:'wall', a:['ward','doc'], b:['ward','doc'], Rw:47, p:31, t:'Стены и перегородки между палатами, кабинетами врачей'},
+      {k:'wall', a:['op'], b:['op','ward','doc','mop','food','other'], Rw:57, p:32, t:'Стены и перегородки между операционными и отделяющие операционные от других помещений'},
+      {k:'wall', a:['ward','doc'], b:['food'], Rw:57, p:32, t:'Стены и перегородки, отделяющие палаты и кабинеты от столовых и кухонь'},
+      {k:'wall', a:['ward','doc'], b:['mop'], Rw:52, p:33, t:'Стены и перегородки, отделяющие палаты и кабинеты от помещений общего пользования'}
+    ]},
+  school: {name:'Учебное заведение', cats:false, rooms:{cls:'Класс, кабинет, аудитория', mop:'Коридор, вестибюль, холл', mus:'Музыкальный класс (среднее учебное заведение)', musH:'Музыкальный класс (вуз)'},
+    rules:[
+      {k:'floor', a:['cls'], b:['cls','mop'], Rw:47, Lnw:63, p:34, t:'Перекрытия между классами, кабинетами, аудиториями и отделяющие их от помещений общего пользования'},
+      {k:'floor', a:['mus'], b:['mus'], Rw:57, Lnw:58, p:35, t:'Перекрытия между музыкальными классами средних учебных заведений'},
+      {k:'floor', a:['musH'], b:['musH'], Rw:60, Lnw:53, p:36, t:'Перекрытия между музыкальными классами высших учебных заведений'},
+      {k:'wall', a:['cls'], b:['cls','mop'], Rw:47, p:37, t:'Стены и перегородки между классами, кабинетами и аудиториями и отделяющие их от помещений общего пользования'},
+      {k:'wall', a:['mus'], b:['mus','mop'], Rw:57, p:38, t:'Стены и перегородки между музыкальными классами средних учебных заведений и отделяющие их от помещений общего пользования'},
+      {k:'wall', a:['musH'], b:['musH'], Rw:60, p:39, t:'Стены и перегородки между музыкальными классами высших учебных заведений'}
+    ]},
+  kinder: {name:'Детское дошкольное учреждение', cats:false, rooms:{grp:'Групповая комната', sleep:'Спальня', other:'Другая детская комната', kitchen:'Кухня'},
+    rules:[
+      {k:'floor', a:['grp','sleep'], b:['grp','sleep'], Rw:47, Lnw:63, p:40, t:'Перекрытия между групповыми комнатами, спальнями'},
+      {k:'floor', a:['grp','sleep'], b:['kitchen'], Rw:51, Lnw:63, p:41, t:'Перекрытия, отделяющие групповые комнаты, спальни от кухонь'},
+      {k:'wall', a:['grp','sleep','other'], b:['grp','sleep','other'], Rw:47, p:42, t:'Стены и перегородки между групповыми комнатами, спальнями и между другими детскими комнатами'},
+      {k:'wall', a:['grp','sleep'], b:['kitchen'], Rw:51, p:43, t:'Стены и перегородки, отделяющие групповые комнаты, спальни от кухонь'}
+    ]}
+};
+function findRule(bid, kind, a, b){
+  const B = BUILD[bid]; if (!B || !a || !b) return null;
+  return B.rules.find(r => r.k === kind && ((r.a.includes(a) && r.b.includes(b)) || (!r.dir && r.a.includes(b) && r.b.includes(a)))) || null;
+}
+const normVal = (v, cat) => v === undefined ? null : (typeof v === 'number' ? v : v[cat]);
+
+// ============================================================
+// ИНТЕРФЕЙС
+// ============================================================
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const st = {
+  view: 'wall', floorTab: 'air', bld: 'res', cat: 'Б',
+  wall: {a:'kv', b:'kv2', layers:[{id:'pl_c',h:15},{id:'brick',h:120},{id:'pl_c',h:15}]},
+  floor:{a:'kv', b:'kv2', pUse:2000, layers:[{id:'lam',h:8},{id:'scr',h:50},{id:'e_izolon',h:10},{id:'rc',h:200}]},
+  res: {wall:null, floor:null}
+};
+try { const s = JSON.parse(localStorage.getItem('zvuk-state')||'null'); if (s && s.wall && s.floor) Object.assign(st, {bld:s.bld, cat:s.cat, wall:s.wall, floor:s.floor}); } catch(e){}
+const save = () => { try { localStorage.setItem('zvuk-state', JSON.stringify({bld:st.bld, cat:st.cat, wall:st.wall, floor:st.floor})); } catch(e){} };
+
+// ---------- слой → параметры ----------
+function lay(l){
+  const m = MAT[l.id]; const h = m.fixH || l.h;
+  const mass = m.mFix ? m.mFix : (m.g||0)*h/1000;
+  return {...m, mat:m, h, m:mass};
+}
+
+// ---------- классификация стены ----------
+function solveWall(layers){
+  const L = layers.map(lay);
+  if (!L.length) throw new Error('Добавьте хотя бы один слой.');
+  const T = L.reduce((a,l)=>a+l.h,0);
+  const zips = L.filter(l => l.type === 'zips');
+  const solid = t => ['massive','thin'].includes(t);
+  // группировка: листы/массив — «оболочки», воздух/вата — «промежутки»
+  const groups = [];
+  L.forEach(l => {
+    const kind = solid(l.type) ? 'leaf' : (l.type === 'zips' ? 'zips' : 'gap');
+    const g = groups[groups.length-1];
+    if (g && g.kind === kind && kind !== 'zips') g.items.push(l); else groups.push({kind, items:[l]});
+  });
+  const info = {T, L};
+  if (zips.length){
+    const leaves = groups.filter(g=>g.kind==='leaf'), gaps = groups.filter(g=>g.kind==='gap');
+    if (zips.length > 1 || gaps.length || leaves.length !== 1 || !leaves[0].items.some(l=>l.type==='massive'))
+      throw new Error('Система ЗИПС рассчитывается только как облицовка одной массивной стены (стена ± штукатурка + ЗИПС с одной стороны). Других методик для такой комбинации в документах нет.');
+    const base = massiveOf(leaves[0].items);
+    const r = calcMassive(base.p);
+    const z = zips[0];
+    r.R = r.R.map((v,i) => v + z.dR[i]);
+    r.steps = [...base.steps, ...r.steps, `Добавка звукоизоляции системой ${z.name} по полосам 100–3150 Гц: ΔR = ${z.dR.join('; ')} дБ (${z.src}). R(f) = R(стены) + ΔR(f).`];
+    r.notes.push('Добавка ΔR(f) ЗИПС-Модуль измерена производителем на кирпичной стене 120 мм; для других стен результат ориентировочный.');
+    r.method = 'Массивная стена с облицовкой ЗИПС-Модуль'; r.clause = 'СП РК 2.04-105-2012, п. Б.1.2 + протокол производителя (НИИСФ РААСН)';
+    return {...r, ...info};
+  }
+  const leaves = groups.filter(g=>g.kind==='leaf'), gaps = groups.filter(g=>g.kind==='gap');
+  if (groups[0].kind === 'gap' || groups[groups.length-1].kind === 'gap') throw new Error('Воздух или минвата не могут быть крайним слоем: снаружи должны быть обшивки или массивная стена.');
+  if (leaves.length === 1){
+    const items = leaves[0].items;
+    if (items.some(l=>l.type==='massive')){
+      const base = massiveOf(items); const r = calcMassive(base.p);
+      r.steps = [...base.steps, ...r.steps]; r.notes = [...base.notes, ...r.notes];
+      return {...r, ...info};
+    }
+    if (items.length === 1 && items[0].a){ const s = items[0]; return {...calcThin({...s, name:s.name}), ...info}; }
+    throw new Error('Несколько склеенных листов без промежутка: в СП РК 2.04-105-2012 методики для такой конструкции нет. Разделите листы воздушным промежутком.');
+  }
+  if (leaves.length === 2 && gaps.length === 1){
+    const [l1, l2] = leaves.map(g=>g.items);
+    if ([...l1,...l2].some(l=>l.type==='massive'))
+      throw new Error('Двойная стена с массивным слоем (или массив + облицовка на относе): в СП РК 2.04-105-2012 есть методика только для двух тонких обшивок с промежутком (пп. Б.1.6–Б.1.9). Для облицовки массивной стены используйте систему ЗИПС-Модуль.');
+    if (l1.length > 2 || l2.length > 2) throw new Error('В обшивке больше двух листов: методика п. Б.1.7 охватывает обшивки из одного или двух листов.');
+    const gap = gaps[0].items; const dmm = gap.reduce((a,l)=>a+l.h,0);
+    const wools = gap.filter(l=>l.type==='wool');
+    const wool = wools.length ? {name: wools.map(w=>w.name).join(' + '), h: wools.reduce((a,w)=>a+w.h,0), m: wools.reduce((a,w)=>a+w.m,0)} : null;
+    const sh = l => ({id:l.id, name:l.name, a:l.a, b:l.b, RB:l.RB, RC:l.RC, h:l.h, m:l.m});
+    const r = calcDouble({leaf1:l1.map(sh), leaf2:l2.map(sh), dmm, wool});
+    if ([...l1,...l2].some(l=>l.mfr)) r.notes.push('Часть параметров — по данным производителя (см. источники).');
+    return {...r, ...info};
+  }
+  throw new Error('Для такой комбинации слоёв в СП РК 2.04-105-2012 нет расчётной методики. Поддерживаются: однородная массивная стена (в т.ч. оштукатуренная); один тонкий лист; две обшивки (1–2 листа) с воздушным промежутком и/или минватой; массивная стена + ЗИПС-Модуль.');
+}
+function massiveOf(items){
+  const ms = items.filter(l=>l.type==='massive'); const thin = items.filter(l=>l.type==='thin');
+  const main = ms.reduce((a,b)=> (b.plaster && !a.plaster) ? a : (a.plaster && !b.plaster ? b : (b.m > a.m ? b : a)));
+  const m = items.reduce((a,l)=>a+l.m,0), h = items.reduce((a,l)=>a+l.h,0);
+  const steps = [], notes = [];
+  if (items.length > 1){
+    steps.push(`Слои жёстко связаны между собой — конструкция акустически однородная (Киселева Е.Г., МАРХИ, п. 6.1): ${items.map(l=>`${l.name} ${fmt(l.h)} мм (${fmt(l.m,1)} кг/м²)`).join(' + ')}. Суммарно h = ${fmt(h)} мм, m = ${fmt(m,1)} кг/м², средняя плотность ${fmt(m/h*1000,0)} кг/м³; коэффициент K принят по основному слою «${main.name}».`);
+    notes.push('Многослойная однородная стена: fB определена по средней плотности и полной толщине, K — по основному слою.');
+  }
+  if (thin.length) notes.push('Приклеенные листы учтены только как дополнительная масса.');
+  return {p:{m, g: m/h*1000, hmm:h, K:main.K}, steps, notes};
+}
+
+// ---------- классификация перекрытия (слои сверху вниз) ----------
+function solveFloor(layers, pUse){
+  const L = layers.map(lay);
+  const T = L.reduce((a,l)=>a+l.h,0);
+  const ceil = L.filter(l=>['ceil','ceilfill','ceilair'].includes(l.type));
+  const body = L.filter(l=>!['ceil','ceilfill','ceilair'].includes(l.type));
+  if (body.some(l=>['air','wool','zips'].includes(l.type) )) throw new Error('В перекрытии не используются воздушные промежутки и системы ЗИПС (кроме пространства подвесного потолка). Минвату под стяжкой выберите из группы «Звукоизоляционный слой».');
+  if (body.some(l=>l.type==='thin' && !['lam'].includes(l.id))) throw new Error('Листовые материалы в перекрытии используйте как подвесной потолок (группа «Потолок снизу») или как покрытие пола.');
+  const ei = body.map((l,i)=>l.type==='elastic'?i:-1).filter(i=>i>=0);
+  let slabLayers, upper = [], elastic = [];
+  if (ei.length){
+    const first = ei[0], last = ei[ei.length-1];
+    if (ei.some((v,k)=>k && v !== ei[k-1]+1)) throw new Error('Звукоизоляционные слои должны идти подряд.');
+    upper = body.slice(0, first); elastic = body.slice(first, last+1); slabLayers = body.slice(last+1);
+    if (!upper.length) throw new Error('Над звукоизоляционным слоем нет пола (стяжки или покрытия).');
+  } else slabLayers = body;
+  const massiveBelow = slabLayers.filter(l=>l.type==='massive');
+  if (!massiveBelow.length) throw new Error('Нет несущей плиты перекрытия (железобетон, бетон…) под звукоизоляционным слоем.');
+  const rolls = slabLayers.filter(l=>l.type==='roll');
+  const mainSlab = massiveBelow.reduce((a,b)=> b.m > a.m ? b : a);
+  const bonded = slabLayers.filter(l=>['massive','cover','roll'].includes(l.type));
+  const m1 = bonded.reduce((a,l)=>a+l.m,0), h1 = bonded.filter(l=>l.type==='massive').reduce((a,l)=>a+l.h,0);
+  const m1s = massiveBelow.reduce((a,l)=>a+l.m,0);
+  const plate = {m:m1s, g:m1s/h1*1000, hmm:h1, K:mainSlab.K};
+  const m2 = upper.reduce((a,l)=>a+l.m,0);
+  const above = upper.map(l=>`${l.name} ${fmt(l.h)} мм — ${fmt(l.m,1)} кг/м²`).join('; ');
+  const cflag = ceil.some(l=>l.type==='ceil') ? (ceil.some(l=>l.type==='ceilfill') ? 2 : 1) : 0;
+  const r = calcFloor({plate, elastic: elastic.map(l=>({mat:l.mat, h:l.h})), m2, above, roll: rolls.length && !elastic.length ? {name:rolls[0].name, dL:rolls[0].dL} : null, ceil:cflag, pUse});
+  if (massiveBelow.length > 1) r.steps.unshift(`Несущая часть: ${massiveBelow.map(l=>`${l.name} ${fmt(l.h)} мм`).join(' + ')} (жёстко связаны), m1 = ${fmt(m1s,1)} кг/м².`);
+  if (rolls.length && elastic.length) r.notes.push('Рулонное покрытие над звукоизоляционным слоем учтено только как масса пола.');
+  return {...r, T, L};
+}
+
+// ---------- визуализация конструкции (SVG) ----------
+const PAT = {
+  concrete:{fill:'#b9bcc0', tex:'<circle cx="3" cy="4" r="1" fill="#8d9196"/><circle cx="11" cy="9" r="1.4" fill="#9a9ea3"/><circle cx="7" cy="14" r=".8" fill="#7d8186"/><circle cx="14" cy="2" r=".7" fill="#a5a9ad"/>', s:16},
+  brick:{fill:'#c3603c', tex:'<rect x="0" y="0" width="32" height="14" fill="#c3603c"/><path d="M0 14h32M0 0h32M16 0v14M0 14v14M32 14v14" stroke="#e8d9c7" stroke-width="2"/><rect x="0" y="15" width="32" height="13" fill="#b45534"/><path d="M16 14v14" stroke="none"/><path d="M8 14v14M24 14v14" stroke="#e8d9c7" stroke-width="2"/>', s:32, h:28},
+  brickS:{fill:'#e2ddd0', tex:'<path d="M0 0h32M0 14h32M16 0v14M8 14v14M24 14v14" stroke="#b8b2a3" stroke-width="2"/>', s:32, h:28},
+  block:{fill:'#e9e6df', tex:'<circle cx="4" cy="4" r="1.6" fill="#cfcabd"/><circle cx="12" cy="7" r="1.2" fill="#d6d1c5"/><circle cx="7" cy="13" r="2" fill="#cdc8ba"/><circle cx="15" cy="15" r="1" fill="#d2cdc0"/>', s:18},
+  keramz:{fill:'#9fa19a', tex:'<circle cx="4" cy="5" r="2.4" fill="#7c6a55"/><circle cx="13" cy="10" r="2" fill="#86735c"/><circle cx="6" cy="15" r="1.6" fill="#7a6853"/>', s:18},
+  gypsum:{fill:'#f2f0ea', tex:'<path d="M0 9h18" stroke="#e0ddd4" stroke-width="1"/>', s:18},
+  plaster:{fill:'#ece7dc', tex:'<circle cx="3" cy="3" r=".7" fill="#d8d1c2"/><circle cx="9" cy="8" r=".6" fill="#d2cab9"/>', s:12},
+  screed:{fill:'#a9a59d', tex:'<circle cx="3" cy="3" r=".9" fill="#8f8b83"/><circle cx="9" cy="8" r=".7" fill="#96928a"/>', s:12},
+  gkl:{fill:'#f4f4f1', tex:'<path d="M0 0v20M8 0v20" stroke="#d9d6cc" stroke-width="1.2"/>', s:8, h:20},
+  gklA:{fill:'#dfe8f5', tex:'<path d="M0 0v20" stroke="#b4c3db" stroke-width="1.2"/>', s:8, h:20},
+  sdb:{fill:'#cfe0d8', tex:'<path d="M3 0v20" stroke="#4d6b5e" stroke-width="1.4"/>', s:8, h:20},
+  wood:{fill:'#c99d6b', tex:'<path d="M0 4c6 -2 10 2 16 0M0 11c6 -2 10 2 16 0" stroke="#a77b4b" fill="none"/>', s:16},
+  parquet:{fill:'#b8834f', tex:'<path d="M0 0l8 8M8 0l8 8" stroke="#946338"/>', s:16, h:8},
+  lino:{fill:'#6f8fa3', tex:'', s:8},
+  carpet:{fill:'#8f6a8f', tex:'<path d="M0 2h8M0 6h8" stroke="#7a557a"/>', s:8},
+  acl:{fill:'#c7cbc4', tex:'', s:8},
+  steel:{fill:'#8d96a0', tex:'', s:8},
+  glass:{fill:'#bfe3ee', tex:'<path d="M0 0l12 12" stroke="#fff" stroke-width="1.5" opacity=".7"/>', s:12},
+  air:{fill:'#ffffff', tex:'<path d="M0 6c3 -3 6 3 9 0s6 3 9 0" stroke="#c7d7e6" fill="none"/>', s:18, h:12},
+  wool:{fill:'#d9c27a', tex:'<path d="M0 6c4 -6 8 6 12 0s8 6 12 0" stroke="#b39a4e" fill="none" stroke-width="1.2"/>', s:24, h:12},
+  woolY:{fill:'#efd96d', tex:'<path d="M0 6c4 -6 8 6 12 0s8 6 12 0" stroke="#cdb33f" fill="none" stroke-width="1.2"/>', s:24, h:12},
+  zips:{fill:'#d6cdb4', tex:'<rect x="0" y="0" width="7" height="20" fill="#c9c3b6"/><path d="M10 0c3 5 -3 10 0 20" stroke="#b39a4e" fill="none"/>', s:20, h:20},
+  foam:{fill:'#7fb8a4', tex:'<circle cx="4" cy="4" r="1.5" fill="#9fd0be"/><circle cx="10" cy="9" r="1.2" fill="#9fd0be"/>', s:14},
+  fiber:{fill:'#e6e6e6', tex:'<path d="M0 3l14 6M0 9l14 -6" stroke="#bdbdbd"/>', s:14, h:12},
+  membrane:{fill:'#3b3b3b', tex:'<path d="M0 2h12" stroke="#666"/>', s:12, h:4},
+  cork:{fill:'#b98b5a', tex:'<circle cx="3" cy="3" r="1" fill="#8c6238"/><circle cx="9" cy="7" r="1.2" fill="#8c6238"/>', s:12},
+  sand:{fill:'#e3cc94', tex:'<circle cx="2" cy="2" r=".8" fill="#c4a964"/><circle cx="7" cy="6" r=".8" fill="#c4a964"/>', s:10}
+};
+function patDefs(prefix){
+  return Object.entries(PAT).map(([k,p]) => `<pattern id="${prefix}${k}" width="${p.s}" height="${p.h||p.s}" patternUnits="userSpaceOnUse"><rect width="${p.s}" height="${p.h||p.s}" fill="${p.fill}"/>${p.tex}</pattern>`).join('');
+}
+function drawWall(layers){
+  const L = layers.map(lay); const T = L.reduce((a,l)=>a+l.h,0) || 1;
+  const W = 300, H = 360, x0 = 20, avail = W - 40;
+  const scale = Math.min(avail / T, 3);
+  const ws = L.map(l => Math.max(5, l.h*scale)); const tot = ws.reduce((a,b)=>a+b,0);
+  let x = (W - tot)/2;
+  let out = `<svg viewBox="0 0 ${W} ${H}" class="cons"><defs>${patDefs('pw')}</defs>`;
+  out += `<line x1="${(W-tot)/2}" x2="${(W+tot)/2}" y1="24" y2="24" stroke="#111" stroke-width="1"/><line x1="${(W-tot)/2}" x2="${(W-tot)/2}" y1="18" y2="30" stroke="#111"/><line x1="${(W+tot)/2}" x2="${(W+tot)/2}" y1="18" y2="30" stroke="#111"/><text x="${W/2}" y="16" text-anchor="middle" class="dim">${fmt(T)} мм</text>`;
+  L.forEach((l,i) => {
+    const w = ws[i];
+    out += `<rect x="${x}" y="40" width="${w}" height="${H-80}" fill="url(#pw${l.vis})" stroke="#111" stroke-width="${l.type==='air'?0.6:1}" ${l.type==='air'?'stroke-dasharray="3 3"':''}/>`;
+    out += `<g transform="translate(${x + w/2},${H-22})"><circle r="9" fill="#FF5E00"/><text y="4" text-anchor="middle" class="num">${i+1}</text></g>`;
+    x += w;
+  });
+  return out + '</svg>';
+}
+function drawFloor(layers){
+  const L = layers.map(lay); const T = L.reduce((a,l)=>a+l.h,0) || 1;
+  const W = 420, H = 280, avail = H - 30;
+  const scale = Math.min(avail/T, 2);
+  const hs = L.map(l => Math.max(5, l.h*scale)); const tot = hs.reduce((a,b)=>a+b,0);
+  let y = (H - tot)/2;
+  let out = `<svg viewBox="0 0 ${W} ${H}" class="cons"><defs>${patDefs('pf')}</defs>`;
+  out += `<line x1="${W-24}" x2="${W-24}" y1="${(H-tot)/2}" y2="${(H+tot)/2}" stroke="#111"/><text x="${W-12}" y="${H/2}" class="dim" transform="rotate(90 ${W-12} ${H/2})" text-anchor="middle">${fmt(T)} мм</text>`;
+  L.forEach((l,i) => {
+    const h = hs[i];
+    out += `<rect x="40" y="${y}" width="${W-80}" height="${h}" fill="url(#pf${l.vis})" stroke="#111" stroke-width="${['air','ceilair'].includes(l.type)?0.6:1}" ${['ceilair'].includes(l.type)?'stroke-dasharray="3 3"':''}/>`;
+    out += `<g transform="translate(22,${y + h/2})"><circle r="9" fill="#FF5E00"/><text y="4" text-anchor="middle" class="num">${i+1}</text></g>`;
+    y += h;
+  });
+  return out + '</svg>';
+}
+
+// ---------- графики ----------
+function chartR(R, ix, pts, opt={}){
+  const W = 760, H = 380, ml = 52, mr = 18, mt = 22, mb = 46;
+  const all = [...R, ...ix.shifted, ...CURVE_R];
+  const ymin = Math.floor((Math.min(...all) - 4)/10)*10, ymax = Math.ceil((Math.max(...all) + 4)/10)*10;
+  const X = k => ml + k*(W-ml-mr)/15, Y = v => mt + (ymax - v)*(H-mt-mb)/(ymax - ymin);
+  const F = opt.font || 'Inter, Arial, sans-serif';
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="${F}"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  for (let v = ymin; v <= ymax; v += 5) s += `<line x1="${ml}" x2="${W-mr}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v%10?'#f0f0f0':'#e2e2e2'}"/>${v%10?'':`<text x="${ml-8}" y="${Y(v)+4}" font-size="12" text-anchor="end" fill="#5f5f5f">${v}</text>`}`;
+  BANDS.forEach((f,k) => s += `<line x1="${X(k)}" x2="${X(k)}" y1="${mt}" y2="${H-mb}" stroke="#f3f3f3"/><text x="${X(k)}" y="${H-mb+16}" font-size="11" text-anchor="middle" fill="#5f5f5f">${f}</text>`);
+  s += `<text x="${W/2}" y="${H-8}" font-size="12" text-anchor="middle" fill="#111">Частота, Гц (1/3 октавы)</text><text x="14" y="${H/2}" font-size="12" text-anchor="middle" fill="#111" transform="rotate(-90 14 ${H/2})">R, дБ</text>`;
+  // заливка недобора
+  R.forEach((r,k) => { if (ix.dev[k] > 0){ const x0 = X(Math.max(0,k-0.5)), x1 = X(Math.min(15,k+0.5)); s += `<rect x="${x0}" y="${Y(ix.shifted[k])}" width="${x1-x0}" height="${Y(r)-Y(ix.shifted[k])}" fill="#FF5E00" opacity=".13"/>`; }});
+  const path = arr => arr.map((v,k)=>`${k?'L':'M'}${X(k).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ');
+  s += `<path d="${path(CURVE_R)}" fill="none" stroke="#bdbdbd" stroke-width="1.5" stroke-dasharray="2 4"/>`;
+  s += `<path d="${path(ix.shifted)}" fill="none" stroke="#111" stroke-width="2" stroke-dasharray="7 5"/>`;
+  s += `<path d="${path(R)}" fill="none" stroke="#FF5E00" stroke-width="3.2" stroke-linejoin="round"/>`;
+  R.forEach((v,k) => s += `<circle cx="${X(k)}" cy="${Y(v)}" r="3.4" fill="#FF5E00"/>`);
+  (pts||[]).forEach(p => { const k = p.i - I0; if (k < -0.01 || k > 15.01) return; s += `<g><circle cx="${X(k)}" cy="${Y(p.R)}" r="5" fill="#fff" stroke="#1f4fff" stroke-width="2"/><text x="${X(k)+7}" y="${Y(p.R)-8}" font-size="13" font-weight="700" fill="#1f4fff">${p.n}${opt.coords?` (${nomOf(p.i)}; ${fmt(p.R)})`:''}</text></g>`; });
+  const k5 = 7; s += `<line x1="${X(k5)}" x2="${X(k5)}" y1="${Y(ix.shifted[k5])}" y2="${H-mb}" stroke="#111" stroke-dasharray="2 3"/><rect x="${X(k5)-32}" y="${Y(ix.shifted[k5])-30}" width="64" height="20" fill="#111"/><text x="${X(k5)}" y="${Y(ix.shifted[k5])-16}" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">Rw = ${ix.Rw}</text>`;
+  // легенда
+  const lg = [['#FF5E00','Расчётная R(f)',''],['#111','Оценочная кривая, сдвиг '+(ix.s>0?'+':'')+ix.s+' дБ','7 5'],['#bdbdbd','Оценочная кривая (табл. 4)','2 4']];
+  lg.forEach((l,i) => { const lx = ml + 10 + i*230; s += `<line x1="${lx}" x2="${lx+26}" y1="${mt+10}" y2="${mt+10}" stroke="${l[0]}" stroke-width="3" ${l[2]?`stroke-dasharray="${l[2]}"`:''}/><text x="${lx+32}" y="${mt+14}" font-size="12" fill="#111">${l[1]}</text>`; });
+  return s + '</svg>';
+}
+function chartTab(c, opt){ // c: {xs, ys, x, y}; opt: {ylab, req, better:'up'|'down', title, tag}
+  const W = 760, H = 340, ml = 52, mr = 18, mt = 34, mb = 46;
+  const xi = c.xs.map(f => bandIdx(f)); const xm = bandIdx(c.x);
+  const xmin = Math.min(...xi, xm) - 0.5, xmax = Math.max(...xi, xm) + 0.5;
+  const all = [...c.ys, c.y, opt.req].filter(v=>v!==null&&v!==undefined);
+  const ymin = Math.floor((Math.min(...all) - 4)/5)*5, ymax = Math.ceil((Math.max(...all) + 4)/5)*5;
+  const X = i => ml + (i - xmin)*(W-ml-mr)/(xmax - xmin), Y = v => mt + (ymax - v)*(H-mt-mb)/(ymax - ymin);
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="Inter, Arial, sans-serif"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  for (let v = ymin; v <= ymax; v += 5) s += `<line x1="${ml}" x2="${W-mr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#ececec"/><text x="${ml-8}" y="${Y(v)+4}" font-size="12" text-anchor="end" fill="#5f5f5f">${v}</text>`;
+  for (let i = Math.ceil(xmin); i <= xmax; i++) s += `<text x="${X(i)}" y="${H-mb+16}" font-size="11" text-anchor="middle" fill="#5f5f5f">${NOM[i]}</text><line x1="${X(i)}" x2="${X(i)}" y1="${mt}" y2="${H-mb}" stroke="#f3f3f3"/>`;
+  s += `<text x="${W/2}" y="${H-8}" font-size="12" text-anchor="middle">${opt.xlab}</text><text x="14" y="${H/2}" font-size="12" text-anchor="middle" transform="rotate(-90 14 ${H/2})">${opt.ylab}</text>`;
+  if (opt.req !== null && opt.req !== undefined){
+    const yr = Y(opt.req);
+    s += opt.better === 'up' ? `<rect x="${ml}" y="${mt}" width="${W-ml-mr}" height="${yr-mt}" fill="#18a058" opacity=".07"/>` : `<rect x="${ml}" y="${yr}" width="${W-ml-mr}" height="${H-mb-yr}" fill="#18a058" opacity=".07"/>`;
+    s += `<line x1="${ml}" x2="${W-mr}" y1="${yr}" y2="${yr}" stroke="#18a058" stroke-width="2" stroke-dasharray="8 5"/><text x="${W-mr-6}" y="${yr-6}" font-size="12" text-anchor="end" fill="#18a058" font-weight="700">норма: ${opt.tag} ${opt.better==='up'?'≥':'≤'} ${opt.req} дБ</text>`;
+  }
+  s += `<path d="${c.xs.map((f,k)=>`${k?'L':'M'}${X(xi[k]).toFixed(1)} ${Y(c.ys[k]).toFixed(1)}`).join(' ')}" fill="none" stroke="#111" stroke-width="2.2"/>`;
+  c.xs.forEach((f,k)=> s += `<circle cx="${X(xi[k])}" cy="${Y(c.ys[k])}" r="3" fill="#111"/>`);
+  s += `<line x1="${X(xm)}" x2="${X(xm)}" y1="${Y(c.y)}" y2="${H-mb}" stroke="#FF5E00" stroke-dasharray="3 3"/><circle cx="${X(xm)}" cy="${Y(c.y)}" r="7" fill="#FF5E00"/><text x="${X(xm)+10}" y="${Y(c.y)-10}" font-size="13" font-weight="700" fill="#FF5E00">${opt.mark}</text>`;
+  s += `<text x="${ml}" y="18" font-size="12" fill="#5f5f5f">${opt.title}</text>`;
+  return s + '</svg>';
+}
+
+// ---------- рендер интерфейса ----------
+function matOptions(sel, floor){
+  const groups = {};
+  MATS.filter(m => floor ? !['air','wool','zips','thin'].includes(m.type) : !m.floorOnly).forEach(m => (groups[m.grp] = groups[m.grp] || []).push(m));
+  return Object.entries(groups).map(([g, ms]) => `<optgroup label="${esc(g)}">${ms.map(m=>`<option value="${m.id}" ${m.id===sel?'selected':''}>${esc(m.name)}</option>`).join('')}</optgroup>`).join('');
+}
+function roomOptions(kind, side){
+  const B = BUILD[st.bld]; const cur = st[kind];
+  const valid = Object.keys(B.rooms).filter(id => B.rules.some(r => r.k===kind && (side==='a' ? (r.a.includes(id) || (!r.dir && r.b.includes(id))) : true)));
+  let ids = valid;
+  if (side === 'b') ids = Object.keys(B.rooms).filter(id => findRule(st.bld, kind, cur.a, id));
+  return ids.map(id => `<option value="${id}" ${id===cur[side]?'selected':''}>${esc(B.rooms[id])}</option>`).join('');
+}
+function fixRooms(kind){
+  const B = BUILD[st.bld]; const cur = st[kind];
+  const okA = Object.keys(B.rooms).filter(id => B.rules.some(r => r.k===kind && (r.a.includes(id) || (!r.dir && r.b.includes(id)))));
+  if (!okA.includes(cur.a)) cur.a = okA[0];
+  if (!findRule(st.bld, kind, cur.a, cur.b)) cur.b = Object.keys(B.rooms).find(id => findRule(st.bld, kind, cur.a, id));
+}
+function normBox(kind){
+  const r = findRule(st.bld, kind, st[kind].a, st[kind].b); if (!r) return '<div class="norm warn">Для этой пары помещений норма в табл. 2 не задана.</div>';
+  const cat = BUILD[st.bld].cats ? st.cat : null;
+  const Rw = normVal(r.Rw, cat), Ln = normVal(r.Lnw, cat);
+  return `<div class="norm"><div class="nv"><span class="lbl">Rw,тр</span><b>${Rw} дБ</b></div>${kind==='floor' && Ln ? `<div class="nv"><span class="lbl">Lnw,тр</span><b>${Ln} дБ</b></div>`:''}
+  <div class="nsrc"><b>СП РК 2.04-105-2012, табл. 2, п. ${r.p}</b>${cat?`, категория ${cat}`:''}. ${esc(r.t)}.${r.fn?` <i>${esc(r.fn)}</i>`:''}</div></div>`;
+}
+function layerRows(kind){
+  const ls = st[kind].layers; const floor = kind === 'floor';
+  return ls.map((l,i) => { const m = MAT[l.id]; return `<div class="lrow">
+    <span class="ln">${i+1}</span>
+    <select data-k="${kind}" data-i="${i}" class="lsel">${matOptions(l.id, floor)}</select>
+    <label class="lh"><input type="number" min="1" max="1000" step="0.5" value="${m.fixH||l.h}" ${m.fixH?'disabled':''} data-k="${kind}" data-i="${i}" class="linp"><span>мм</span></label>
+    <span class="lbtns"><button data-act="up" data-k="${kind}" data-i="${i}" title="Выше">↑</button><button data-act="dn" data-k="${kind}" data-i="${i}" title="Ниже">↓</button><button data-act="del" data-k="${kind}" data-i="${i}" title="Удалить">✕</button></span>
+    <div class="lsrc">${m.mfr?'<span class="mfr">данные производителя</span> ':''}${esc(m.src)}</div></div>`; }).join('');
+}
+function render(){
+  if (/^#admin/.test(location.hash)) { adminView(); return; }
+  fixRooms('wall'); fixRooms('floor');
+  $('#nav').innerHTML = `
+    <button class="nb ${st.view==='wall'?'on':''}" data-view="wall"><span class="nn">01</span>Стена / перегородка</button>
+    <button class="nb ${st.view==='floor'?'on':''}" data-view="floor"><span class="nn">02</span>Перекрытие</button>
+    ${st.view==='floor' ? `<div class="sub"><button class="${st.floorTab==='air'?'on':''}" data-ft="air">Воздушный шум · Rw</button><button class="${st.floorTab==='imp'?'on':''}" data-ft="imp">Ударный шум · Lnw</button></div>`:''}
+    <button class="nb ${st.view==='src'?'on':''}" data-view="src"><span class="nn">03</span>Нормы и источники</button>`;
+  const B = BUILD[st.bld];
+  const head = `<div class="card bld"><div class="f"><label>Тип здания</label><select id="bld">${Object.entries(BUILD).map(([k,v])=>`<option value="${k}" ${k===st.bld?'selected':''}>${esc(v.name)}</option>`).join('')}</select></div>
+    ${B.cats ? `<div class="f"><label>Категория здания</label><select id="cat">${['A','Б','В'].map(c=>`<option ${c===st.cat?'selected':''}>${c}</option>`).join('')}</select><small>А — высококомфортные, Б — комфортные, В — предельно допустимые условия (задаётся заданием на проектирование)</small></div>`:'<div class="f"><small>Для этого типа здания нормы табл. 2 не зависят от категории.</small></div>'}</div>`;
+  if (st.view === 'src'){ $('#main').innerHTML = srcPage(); return; }
+  const kind = st.view; const S = st[kind];
+  const layout = kind === 'wall'
+    ? `<div class="scene">
+        <div class="room"><div class="tag">ПОМЕЩЕНИЕ А</div><select id="ra">${roomOptions('wall','a')}</select></div>
+        <div class="consbox">${drawWall(S.layers)}<div class="cap">Разрез стены · слои слева направо</div></div>
+        <div class="room"><div class="tag">ПОМЕЩЕНИЕ Б</div><select id="rb">${roomOptions('wall','b')}</select></div></div>`
+    : `<div class="scene v">
+        <div class="room"><div class="tag">ПОМЕЩЕНИЕ СВЕРХУ</div><select id="ra">${roomOptions('floor','a')}</select></div>
+        <div class="consbox">${drawFloor(S.layers)}<div class="cap">Разрез перекрытия · слои сверху вниз</div></div>
+        <div class="room"><div class="tag">ПОМЕЩЕНИЕ СНИЗУ</div><select id="rb">${roomOptions('floor','b')}</select></div></div>`;
+  $('#main').innerHTML = `
+    <div class="h1"><span class="kick">${kind==='wall'?'ИЗОЛЯЦИЯ ВОЗДУШНОГО ШУМА':'ПЕРЕКРЫТИЕ · '+(st.floorTab==='air'?'ВОЗДУШНЫЙ ШУМ':'УДАРНЫЙ ШУМ')}</span><h1>${kind==='wall'?'Стена или перегородка':'Междуэтажное перекрытие'}</h1></div>
+    ${head}
+    ${layout}
+    ${normBox(kind)}
+    <div class="card">
+      <div class="ch"><b>Слои конструкции</b><span>${S.layers.length}/10 · ${kind==='wall'?'от помещения А к помещению Б':'сверху вниз'}</span></div>
+      <div id="layers">${layerRows(kind)}</div>
+      <div class="lfoot">${S.layers.length<10?`<button class="ghost" id="add">+ Добавить слой</button>`:'<span class="muted">Максимум 10 слоёв</span>'}
+      ${kind==='floor'?`<label class="pl">Полезная нагрузка на пол <input type="number" id="puse" value="${S.pUse}" step="100" min="0"> Па <small>(2000 Па — Климухин, примеры 9–12)</small></label>`:''}</div>
+    </div>
+    <div class="go"><button class="primary" id="calc">ОК — рассчитать</button></div>
+    <div id="result">${resultHTML()}</div>`;
+}
+function resultHTML(){
+  const kind = st.view; const r = st.res[kind];
+  if (!r) return '';
+  if (r.error) return `<div class="card err"><b>Расчёт невозможен.</b> ${esc(r.error)}</div>`;
+  const rule = findRule(st.bld, kind, st[kind].a, st[kind].b); const cat = BUILD[st.bld].cats ? st.cat : null;
+  const RwT = rule ? normVal(rule.Rw, cat) : null, LnT = rule ? normVal(rule.Lnw, cat) : null;
+  let val, req, ok, chart, tag, unit = 'дБ', sub;
+  if (kind === 'wall'){
+    const ix = indexRw(r.R); val = ix.Rw; req = RwT; ok = req === null ? null : val >= req; tag = 'Rw';
+    chart = chartR(r.R, ix, r.pts); sub = 'Индекс изоляции воздушного шума по оценочной кривой (СП РК 2.04-105-2012, п. 4.1.21)';
+  } else if (st.floorTab === 'air'){
+    val = r.Rw; req = RwT; ok = req === null ? null : val >= req; tag = 'Rw';
+    chart = r.curveRw ? chartTab(r.curveRw, {xlab:'Частота резонанса перекрытия fр, Гц', ylab:'Rw, дБ', req, better:'up', tag:'Rw', mark:`fр → Rw`, title:`Rw перекрытия по табл. 15 при Rw0 плиты = ${r.Rw0} дБ`}) : chartR(r.slab.R, r.slabIx, r.slab.pts);
+    sub = r.curveRw ? 'Rw перекрытия с полом на упругом слое — по таблице в зависимости от частоты резонанса' : 'Изоляция воздушного шума несущей плитой';
+  } else {
+    val = r.Lnw; req = LnT; ok = req === null || req === undefined ? null : val <= req; tag = 'Lnw';
+    chart = r.curveLnw ? chartTab(r.curveLnw, {xlab:'Частота собственных колебаний пола f0, Гц', ylab:'Lnw, дБ', req, better:'down', tag:'Lnw', mark:'f0 → Lnw', title:`Lnw по табл. 17 при Lnw0 плиты = ${fmt(r.Lnw0,1)} дБ`}) : null;
+    sub = 'Индекс приведённого уровня ударного шума (меньше — лучше)';
+  }
+  const verdict = ok === null ? `<div class="verdict na">Норма для этой пары помещений не задана</div>` :
+    `<div class="verdict ${ok?'ok':'bad'}"><span>${ok?'ПРОХОДИТ':'НЕ ПРОХОДИТ'}</span><small>${tag} = ${val} дБ ${tag==='Lnw'?(ok?'≤':'>'):(ok?'≥':'<')} ${tag},тр = ${req} дБ${ok?'':` · не хватает ${Math.abs(val-req)} дБ`}</small></div>`;
+  return `<div class="card res">
+    <div class="rhead">${verdict}</div>
+    <div class="sub2">${esc(sub)}</div>
+    ${chart ? `<div class="chart">${chart}</div>` : `<div class="muted">Без звукоизоляционного слоя Lnw определяется формулой, график не строится.</div>`}
+    <div class="meth"><b>Метод:</b> ${esc(r.method)} · <span>${esc(r.clause)}</span></div>
+    ${r.notes && r.notes.length ? `<div class="notes">${[...new Set(r.notes)].map(n=>`<div>⚠ ${esc(n)}</div>`).join('')}</div>`:''}
+    <div class="lock"><div><b>Подробный отчёт</b><br><span>Исходные данные, ход расчёта с подстановкой чисел, координаты всех точек графика, таблицы отклонений, ссылки на пункты норм. Формат как в проектной документации.</span></div><button class="primary" id="rep">Получить отчёт · Word / PDF</button></div>
+    ${stepsHTML()}
+  </div>`;
+}
+function srcPage(){
+  return `<div class="h1"><span class="kick">ДОВЕРИЕ К РАСЧЁТУ</span><h1>Нормы и источники</h1></div>
+  <div class="card prose">
+  <h3>Нормативные документы</h3>
+  <p><b>СП РК 2.04-105-2012</b> «Проектирование звукоизоляции ограждающих конструкций жилых и общественных зданий»: табл. 2 — нормативные Rw и Lnw; табл. 4 — оценочные кривые; пп. 4.1.21–4.1.22 — определение индексов; прил. Б — методика расчёта частотной характеристики (пп. Б.1.2–Б.1.9, табл. Б.1–Б.7). Свод правил является развитием <b>СН РК 2.04-02-2011</b> «Защита от шума».</p>
+  <p><b>СП РК 2.04-107-2022</b> «Тепловая защита зданий», прил. А — плотности строительных материалов.</p>
+  <h3>Методические пособия (для перекрытий)</h3>
+  <p>Климухин А.А., «Звукоизоляция»: табл. 15 (Rw перекрытия), табл. 16 (Ед и ε материалов), табл. 17 (Lnw), табл. 18 (Lnw0 плиты), формулы 11–13 — повторяют СП 23-103-2003. Пособие к СП 51.13330.2011: пп. 12.5–12.15, табл. 12.1, 12.2, 12.5–12.7. Киселева Е.Г., МАРХИ, 2011 — учебные примеры.</p>
+  <h3>Данные производителей</h3>
+  <p>Технические листы и каталог Acoustic Group (acoustic.kz), технические листы ТЕХНОНИКОЛЬ (Казахстан). Такие материалы помечены «данные производителя»; в отчёте это указывается отдельно.</p>
+  <h3>Что важно знать</h3>
+  <p>Расчёт даёт лабораторные индексы Rw и Lnw. Фактическая звукоизоляция в здании (R'w, L'nw) зависит от узлов примыкания и качества монтажа; Пособие указывает снижение до 2 дБ при соблюдении норм монтажа. Окончательная оценка новых конструкций — натурными испытаниями по ГОСТ 27296 (СП РК 2.04-105-2012, п. 4.1.26).</p>
+  <h3>Нормы табл. 2</h3>
+  ${Object.values(BUILD).map(B=>`<p><b>${esc(B.name)}</b><br>${B.rules.map(r=>`п. ${r.p}. ${esc(r.t)} — Rw ${typeof r.Rw==='number'?r.Rw:Object.entries(r.Rw).map(([k,v])=>k+': '+v).join(', ')} дБ${r.Lnw?`; Lnw ${typeof r.Lnw==='number'?r.Lnw:Object.entries(r.Lnw).map(([k,v])=>k+': '+v).join(', ')} дБ`:''}`).join('<br>')}</p>`).join('')}
+  </div>`;
+}
+
+// ---------- события ----------
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.view){ st.view = t.dataset.view; render(); return; }
+  if (t.dataset.ft){ st.floorTab = t.dataset.ft; render(); return; }
+  if (t.dataset.act){ const k = t.dataset.k, i = +t.dataset.i, ls = st[k].layers;
+    if (t.dataset.act==='del') ls.splice(i,1);
+    if (t.dataset.act==='up' && i>0) [ls[i-1],ls[i]] = [ls[i],ls[i-1]];
+    if (t.dataset.act==='dn' && i<ls.length-1) [ls[i+1],ls[i]] = [ls[i],ls[i+1]];
+    st.res[k] = null; save(); render(); return; }
+  if (t.id === 'add'){ const k = st.view; st[k].layers.push(k==='wall'?{id:'air',h:50}:{id:'scr',h:40}); st.res[k] = null; save(); render(); return; }
+  if (t.id === 'calc'){ calc(); return; }
+  if (t.id === 'rep'){ openPay(); return; }
+  if (t.dataset.close !== undefined){ $('#modal').classList.remove('on'); return; }
+  if (t.dataset.fmt){ makeReport(t.dataset.fmt); return; }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'bld'){ st.bld = t.value; st.res = {wall:null, floor:null}; save(); render(); return; }
+  if (t.id === 'cat'){ st.cat = t.value; save(); render(); return; }
+  if (t.id === 'ra'){ st[st.view].a = t.value; fixRooms(st.view); save(); render(); return; }
+  if (t.id === 'rb'){ st[st.view].b = t.value; save(); render(); return; }
+  if (t.id === 'puse'){ st.floor.pUse = Math.max(0, +t.value||0); st.res.floor = null; save(); render(); return; }
+  if (t.classList.contains('lsel')){ const k = t.dataset.k, i = +t.dataset.i; st[k].layers[i] = {id:t.value, h:MAT[t.value].defH}; st.res[k] = null; save(); render(); return; }
+  if (t.classList.contains('linp')){ const k = t.dataset.k, i = +t.dataset.i; st[k].layers[i].h = Math.max(0.5, +t.value||1); st.res[k] = null; save(); render(); return; }
+});
+function calc(){
+  const k = st.view;
+  try { st.res[k] = k === 'wall' ? solveWall(st.wall.layers) : solveFloor(st.floor.layers, st.floor.pUse); }
+  catch(err){ st.res[k] = {error: err.message}; }
+  $('#result').innerHTML = resultHTML();
+  $('#result').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ---------- оплата и разблокировка отчёта ----------
+const PAY = {kaspi:'https://pay.kaspi.kz/pay/esdg7ezb', wa:'77477323163', tg:'Nurdauletamirov', ig:'ictb_courses', hours:'9:00–20:00 (Астана)',
+  price:{W:5000, A:2500, I:2500, F:5000}, name:{W:'Отчёт: стена / перегородка (Rw)', A:'Отчёт: перекрытие, воздушный шум (Rw)', I:'Отчёт: перекрытие, ударный шум (Lnw)', F:'Отчёт: перекрытие, воздушный + ударный шум'}};
+const ADMIN_HASH = '9a98e7df7e4b6cbb979628f5b8954f775aba102dc02d35b176719e42b03ce14b';
+const SALT = 'ictb-zvuk-2026-r1';
+function h53(str, seed=0){ let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for (let i = 0, ch; i < str.length; i++){ ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); } h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909); h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909); return 4294967296*(2097151 & h2) + (h1>>>0); }
+const fmtT = n => n.toLocaleString('ru-RU').replace(/ /g,' ') + ' ₸';
+let product = 'W';
+function calcCode(){
+  const k = st.view; const S = st[k];
+  const body = JSON.stringify({k, b:st.bld, c:st.cat, a:S.a, r:S.b, p:S.pUse||0, l:S.layers.map(l=>[l.id, MAT[l.id].fixH||l.h])});
+  const h = h53(body).toString(36).toUpperCase().padStart(8,'0').slice(-8);
+  return `${product}-${h.slice(0,4)}-${h.slice(4)}`;
+}
+const unlockOf = code => String(h53(SALT + '|' + code.toUpperCase().replace(/\s/g,'')) % 1000000).padStart(6,'0');
+const isUnlocked = code => { try { return (JSON.parse(localStorage.getItem('zvuk-unl')||'[]')).includes(code); } catch(e){ return false; } };
+const markUnlocked = code => { try { const a = JSON.parse(localStorage.getItem('zvuk-unl')||'[]'); if (!a.includes(code)) a.push(code); localStorage.setItem('zvuk-unl', JSON.stringify(a)); } catch(e){} };
+function stepsHTML(){
+  return `<div class="steps">
+    <div class="step"><div class="sn">01</div><b>Рассчитайте</b><p>Соберите конструкцию, нажмите «ОК — рассчитать», затем «Получить отчёт». Сайт выдаст код расчёта.</p></div>
+    <div class="step"><div class="sn">02</div><b>Напишите нам</b><p>Отправьте код расчёта в WhatsApp, Telegram или Instagram. Я подтверждаю цену.</p></div>
+    <div class="step"><div class="sn">03</div><b>Оплата</b><p>Резиденты КЗ — по ссылке Kaspi Pay. Нерезиденты — переводом на карту, номер из 16 цифр пришлю лично.</p></div>
+    <div class="step"><div class="sn">04</div><b>Код и отчёт</b><p>С ${PAY.hours} присылаю 6-значный код. Введите его — и скачайте отчёт в Word или PDF.</p></div>
+  </div>`;
+}
+function openPay(){
+  product = st.view === 'wall' ? 'W' : (st.floorTab === 'air' ? 'A' : 'I');
+  renderPay();
+  $('#modal').classList.add('on');
+}
+function renderPay(){
+  const code = calcCode(); const price = PAY.price[product];
+  const admin = location.href.split('#')[0] + '#admin-' + code;
+  const msg = `Здравствуйте! Хочу получить отчёт ICTB.\n${PAY.name[product]} — ${fmtT(price)}.\nКод расчёта: ${code}\n(для администратора: ${admin})`;
+  const unl = isUnlocked(code);
+  $('#modal').innerHTML = `<div class="mbox">
+    <button class="x" data-close>✕</button>
+    <div class="tag">ICTB · ОТЧЁТ</div>
+    <h2>${esc(PAY.name[product])}</h2>
+    ${st.view==='floor' ? `<div class="prods">${['A','I','F'].map(k=>`<button class="${k===product?'on':''}" data-prod="${k}">${k==='A'?'Воздушный шум':k==='I'?'Ударный шум':'Оба'}<b>${fmtT(PAY.price[k])}</b></button>`).join('')}</div>` : ''}
+    <div class="code"><span class="lbl">Код расчёта</span><b id="ccode">${code}</b><button class="ghost sm" data-copy="${code}">Копировать</button><span class="price">${fmtT(price)}</span></div>
+    <p class="muted">Код привязан к этой конструкции и помещениям. Если поменяете слои, код изменится.</p>
+    ${unl ? '' : `
+    <div class="pstep"><span class="sn">01</span><div><b>Напишите нам код расчёта</b>
+      <div class="fmts"><a class="btn wa" href="https://wa.me/${PAY.wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">WhatsApp</a><a class="btn k" href="https://t.me/${PAY.tg}" target="_blank" rel="noopener">Telegram</a><a class="btn" href="https://ig.me/m/${PAY.ig}" target="_blank" rel="noopener">Instagram</a></div>
+      <small>В WhatsApp сообщение с кодом подставится само. В Telegram и Instagram — вставьте скопированный код.</small></div></div>
+    <div class="pstep"><span class="sn">02</span><div><b>Оплатите ${fmtT(price)}</b>
+      <div class="fmts"><a class="btn kaspi" href="${PAY.kaspi}" target="_blank" rel="noopener">Оплатить в Kaspi (резиденты КЗ)</a></div>
+      <small>В комментарии к оплате укажите код расчёта. Из другой страны — переводом на карту: номер из 16 цифр пришлю лично.</small></div></div>
+    <div class="pstep"><span class="sn">03</span><div><b>Введите код разблокировки</b>
+      <div class="ulk"><input id="ulk" inputmode="numeric" maxlength="7" placeholder="000000"><button class="primary" id="ulkbtn">Открыть отчёт</button></div>
+      <small>Код пришлю после проверки оплаты, ${PAY.hours}.</small><div id="ulkmsg"></div></div></div>`}
+    <div id="dlbox" ${unl?'':'hidden'}>
+      <div class="obj">
+        <label>Объект<input id="o_name" placeholder="Жилой комплекс …"></label>
+        <label>Шифр<input id="o_code" placeholder="067-РП-АР"></label>
+        <label>Конструкция<input id="o_cons" placeholder="${st.view==='wall'?'Межквартирная стена':'Междуэтажное перекрытие'}"></label>
+        <label>Исполнитель<input id="o_auth" placeholder="ФИО"></label>
+      </div>
+      <div class="fmts"><button class="primary" data-fmt="docx">Скачать Word (.docx)</button><button class="primary dark" data-fmt="pdf">Скачать PDF</button></div>
+      <div id="repmsg" class="muted"></div>
+    </div></div>`;
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.prod){ product = t.dataset.prod; renderPay(); }
+  if (t.dataset.copy){ try { navigator.clipboard.writeText(t.dataset.copy).then(()=>{ t.textContent = 'Скопировано'; }, ()=>{ t.textContent = t.dataset.copy; }); } catch(err){ t.textContent = t.dataset.copy; } }
+  if (t.id === 'ulkbtn'){ const code = calcCode(); const v = ($('#ulk').value||'').replace(/\D/g,'');
+    if (v === unlockOf(code)){ markUnlocked(code); renderPay(); } else $('#ulkmsg').innerHTML = '<span class="bad">Код не подходит к этому расчёту. Проверьте цифры или что конструкция не менялась.</span>'; }
+  if (t.id === 'admgo'){ adminLogin(); }
+  if (t.id === 'admcalc'){ adminShow(); }
+});
+
+// ---------- страница администратора (#admin) ----------
+async function sha256(s){ const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+const adminOk = () => { try { return localStorage.getItem('zvuk-adm') === ADMIN_HASH; } catch(e){ return false; } };
+function adminView(){
+  $('#modal').classList.remove('on');
+  const pre = (location.hash.match(/^#admin-(.+)$/)||[])[1] || '';
+  $('#nav').innerHTML = '<button class="nb on">Администратор</button><a class="nb" href="' + location.href.split('#')[0] + '" style="text-decoration:none;color:inherit"><span class="nn">←</span>К калькулятору</a>';
+  $('#main').innerHTML = `<div class="h1"><span class="kick">ТОЛЬКО ДЛЯ ВЛАДЕЛЬЦА</span><h1>Код разблокировки</h1></div>
+    <div class="card adm">${adminOk() ? `
+      <label>Код расчёта клиента<input id="admcode" value="${esc(pre)}" placeholder="W-XXXX-XXXX"></label>
+      <button class="primary" id="admcalc">Показать код</button>
+      <div id="admout"></div>` : `
+      <label>Пароль<input id="admpass" type="password" autocomplete="current-password"></label>
+      <button class="primary" id="admgo">Войти</button><div id="admmsg"></div>`}
+    </div>`;
+  if (adminOk() && pre) adminShow();
+}
+async function adminLogin(){
+  const v = $('#admpass').value; const h = await sha256(v);
+  if (h === ADMIN_HASH){ try { localStorage.setItem('zvuk-adm', h); } catch(e){} adminView(); }
+  else $('#admmsg').innerHTML = '<span class="bad">Неверный пароль</span>';
+}
+function adminShow(){
+  const code = ($('#admcode').value||'').trim().toUpperCase();
+  const p = code[0]; const ok = /^[WAIF]-[0-9A-Z]{4}-[0-9A-Z]{4}$/.test(code);
+  $('#admout').innerHTML = ok ? `<div class="admres"><span class="lbl">${esc(PAY.name[p])} · проверьте оплату ${fmtT(PAY.price[p])}</span><b>${unlockOf(code).replace(/(\d{3})(\d{3})/,'$1 $2')}</b><button class="ghost sm" data-copy="${unlockOf(code)}">Копировать</button></div>` : '<span class="bad">Код расчёта должен выглядеть так: W-XXXX-XXXX</span>';
+}
+
+// ============================================================
+// ОТЧЁТ (модель → DOCX / PDF)
+// ============================================================
+function objInfo(){
+  const v = id => ($('#'+id) && $('#'+id).value.trim()) || '';
+  return {name:v('o_name'), code:v('o_code'), cons:v('o_cons'), auth:v('o_auth')};
+}
+function layerBlock(L, kind){
+  return L.map((l,i) => `${i+1}. ${l.name}: h = ${fmt(l.h)} мм${l.g?`, γ = ${fmt(l.g,0)} кг/м³`:''}${l.m?`, m = ${fmt(l.m,2)} кг/м²`:''}${l.E?`, Ед/ε по нагрузке — см. ход расчёта`:''}. Источник: ${l.src}${l.mfr?' (по данным производителя)':''}.`);
+}
+function indexTable(R, ix){
+  const head = ['Параметр', ...BANDS.map(String)];
+  const d = a => a.map(v => v ? fmt(v) : '–');
+  return {head, rows:[
+    ['Расчётная частотная характеристика R, дБ', ...R.map(v=>fmt(v))],
+    ['Оценочная кривая, дБ (табл. 4)', ...CURVE_R.map(String)],
+    [`Неблагоприятные отклонения, дБ (Σ = ${fmt(ix.sum0)})`, ...d(ix.dev0)],
+    [`Оценочная кривая, смещённая ${ix.s>=0?'вверх':'вниз'} на ${Math.abs(ix.s)} дБ`, ...ix.shifted.map(String)],
+    [`Неблагоприятные отклонения от смещённой кривой, дБ (Σ = ${fmt(ix.sum)})`, ...d(ix.dev)],
+  ], small:true};
+}
+function pointsTable(pts){
+  return {head:['Точка','f, Гц','R, дБ'], rows: pts.map(p => [p.n, String(nomOf(p.i)), fmt(p.R)])};
+}
+function buildReport(){
+  const o = objInfo(); const kind = st.view; const r = st.res[kind]; const B = BUILD[st.bld];
+  const cat = B.cats ? st.cat : null; const rule = findRule(st.bld, kind, st[kind].a, st[kind].b);
+  const ra = B.rooms[st[kind].a], rb = B.rooms[st[kind].b];
+  const blocks = []; const H = (t)=>blocks.push({t:'h',text:t}), P = (t,b)=>blocks.push({t:'p',text:t,b}), T = (x)=>blocks.push({t:'table',...x}), I = (svg,w,h)=>blocks.push({t:'img',svg,w,h});
+  const date = new Date().toLocaleDateString('ru-RU');
+  blocks.push({t:'title', text: o.name || 'Объект не указан', sub: [o.code, date].filter(Boolean).join(' · ')});
+  const RwT = rule ? normVal(rule.Rw, cat) : null, LnT = rule ? normVal(rule.Lnw, cat) : null;
+  const reqBlock = () => {
+    P(`- Требование к звукоизоляции ограждающих конструкций: ${kind==='wall'?'внутренняя стена или перегородка':'междуэтажное перекрытие'}.`);
+    P(`Определение нормативных значений индексов изоляции ${kind==='wall'?'воздушного шума':'воздушного и ударного шума'} внутренними ограждающими конструкциями.`);
+    P(`Тип здания или помещения – ${B.name}${cat?`, категория ${cat}`:''};`);
+    P(`Помещения – ${kind==='wall'?`«${ra}» / «${rb}»`:`сверху «${ra}», снизу «${rb}»`};`);
+    if (rule) P(`Ограждающая конструкция – ${rule.t} (СП РК 2.04-105-2012, табл. 2, п. ${rule.p});`);
+    if (RwT) P(`Rw, тр. = ${RwT} дБ`, true);
+    if (kind==='floor' && LnT) P(`Lnw, тр. = ${LnT} дБ`, true);
+    if (rule && rule.fn) P(rule.fn);
+  };
+  if (kind === 'wall'){
+    const ix = indexRw(r.R);
+    H(`Расчёт шумоизоляции: ${o.cons || 'стена / перегородка'} толщиной ${fmt(r.T)} мм.`);
+    P('Исходные данные:', true);
+    layerBlock(r.L).forEach(t => P(t));
+    P('Результаты расчёта:', true);
+    reqBlock();
+    P(`- Определение частотной характеристики изоляции воздушного шума: ${r.method} (${r.clause}).`);
+    P('Расчёт ведётся для частот, Гц: 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150 (соответствуют значениям характеристик с индексами i = 1 ÷ 16).');
+    r.steps.forEach(s => P('- ' + s));
+    if (r.pts.length) { P('Характерные точки частотной характеристики:', true); T(pointsTable(r.pts.filter(p=>p.i>=I0-3 && p.i<=I0+18))); }
+    P('Определение индекса изоляции воздушного шума Rw (СП РК 2.04-105-2012, п. 4.1.21; форма табл. А.1):', true);
+    T(indexTable(r.R, ix));
+    I(chartR(r.R, ix, r.pts, {coords:true, font:'Arial'}), 760, 380);
+    if (r.notes.length){ P('Примечания:', true); [...new Set(r.notes)].forEach(n => P('- ' + n)); }
+    P(`Вывод: За величину индекса изоляции воздушного шума принимаем значение смещённой оценочной кривой в 1/3-октавной полосе 500 Гц, т.е. Rw = ${ix.Rw} дБ.`, true);
+    if (RwT) P(ix.Rw >= RwT ? `Rw = ${ix.Rw} дБ ≥ Rw,тр = ${RwT} дБ – требуемое условие выполняется!` : `Rw = ${ix.Rw} дБ < Rw,тр = ${RwT} дБ – требуемое условие НЕ выполняется (недостаёт ${RwT - ix.Rw} дБ).`, true);
+  } else {
+    H(`Расчёт звукоизоляции: ${o.cons || 'междуэтажное перекрытие'} толщиной ${fmt(r.T)} мм.`);
+    P('Исходные данные (слои сверху вниз):', true);
+    layerBlock(r.L).forEach(t => P(t));
+    P(`Полезная нагрузка на пол: ${st.floor.pUse} Па.`);
+    P('Результаты расчёта:', true);
+    reqBlock();
+    const part = (typeof product !== 'undefined') ? product : 'F';
+    const doA = part !== 'I', doI = part !== 'A';
+    if (doA){
+    H('1. Расчёт индекса изоляции воздушного шума перекрытием.');
+    P('Частотная характеристика изоляции воздушного шума несущей плитой (СП РК 2.04-105-2012, п. Б.1.2):', true);
+    r.slab.steps.forEach(s => P('- ' + s));
+    T(indexTable(r.slab.R, r.slabIx));
+    I(chartR(r.slab.R, r.slabIx, r.slab.pts, {coords:true, font:'Arial'}), 760, 380);
+    r.steps.forEach(s => P('- ' + s));
+    if (r.curveRw) I(chartTab(r.curveRw, {xlab:'fр, Гц', ylab:'Rw, дБ', req:RwT, better:'up', tag:'Rw', mark:`Rw = ${fmt(r.curveRw.y,1)}`, title:'Rw перекрытия по табл. 15 (Климухин) при Rw0 плиты = '+r.Rw0+' дБ'}), 760, 340);
+    P(`Вывод: Rw = ${r.Rw} дБ${RwT?(r.Rw >= RwT ? ` ≥ Rw,тр = ${RwT} дБ – требуемое условие выполняется!` : ` < Rw,тр = ${RwT} дБ – требуемое условие НЕ выполняется (недостаёт ${RwT-r.Rw} дБ).`):'.'}`, true);
+    }
+    if (doI){
+    H((doA?'2':'1') + '. Расчёт индекса приведённого уровня ударного шума под перекрытием.');
+    r.stepsI.forEach(s => P('- ' + s));
+    if (r.curveLnw) I(chartTab(r.curveLnw, {xlab:'f0, Гц', ylab:'Lnw, дБ', req:LnT, better:'down', tag:'Lnw', mark:`Lnw = ${fmt(r.curveLnw.y,1)}`, title:'Lnw по табл. 17 (Климухин) при Lnw0 = '+fmt(r.Lnw0,1)+' дБ'}), 760, 340);
+    P(`Вывод: Lnw = ${r.Lnw} дБ${LnT?(r.Lnw <= LnT ? ` ≤ Lnw,тр = ${LnT} дБ – требуемое условие выполняется!` : ` > Lnw,тр = ${LnT} дБ – требуемое условие НЕ выполняется (превышение ${r.Lnw-LnT} дБ).`):'.'}`, true);
+    }
+    if (r.notes.length){ P('Примечания:', true); [...new Set(r.notes)].forEach(n => P('- ' + n)); }
+  }
+  P('Источники:', true);
+  ['СП РК 2.04-105-2012 «Проектирование звукоизоляции ограждающих конструкций жилых и общественных зданий» (табл. 2, табл. 4, пп. 4.1.21–4.1.22, прил. Б).',
+   'СН РК 2.04-02-2011 «Защита от шума».',
+   'СП РК 2.04-107-2022 «Тепловая защита зданий», прил. А (плотности материалов).',
+   ...(kind==='floor'?['Климухин А.А. Звукоизоляция: табл. 15–18, ф. 11–13 (по СП 23-103-2003).','Пособие к СП 51.13330.2011 «Защита от шума», пп. 12.5–12.15.']:[]),
+   ...(r.L.some(l=>l.mfr)?['Технические листы и каталоги производителей (acoustic.kz, ТЕХНОНИКОЛЬ) — для материалов с пометкой «по данным производителя».']:[])
+  ].forEach(s => P('- ' + s));
+  P('Расчёт выполнен по лабораторным индексам Rw, Lnw. Окончательная оценка новых конструкций — натурными испытаниями по ГОСТ 27296 (СП РК 2.04-105-2012).');
+  if (o.auth) P(`Выполнил: ${o.auth}`);
+  return blocks;
+}
+
+// --- SVG → PNG ---
+function svgToPng(svg, w, h){
+  return new Promise((res, rej) => {
+    const img = new Image(); const k = 2;
+    img.onload = () => { try { const c = document.createElement('canvas'); c.width = w*k; c.height = h*k; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      const url = c.toDataURL('image/png'); const bin = atob(url.split(',')[1]); const u = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) u[i] = bin.charCodeAt(i); res({url, bytes:u}); } catch(e){ rej(e); } };
+    img.onerror = rej; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  });
+}
+
+// --- минимальный ZIP (без сжатия) ---
+const CRC = (() => { const t = new Uint32Array(256); for (let n=0;n<256;n++){ let c=n; for (let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
+const crc32 = u => { let c = 0xFFFFFFFF; for (let i=0;i<u.length;i++) c = CRC[(c^u[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; };
+function zip(files){ // [{name, data:Uint8Array|string}]
+  const enc = new TextEncoder(); const parts = [], central = []; let off = 0;
+  files.forEach(f => {
+    const name = enc.encode(f.name), data = typeof f.data === 'string' ? enc.encode(f.data) : f.data, crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true); lh.setUint16(8,0,true); lh.setUint32(14,crc,true); lh.setUint32(18,data.length,true); lh.setUint32(22,data.length,true); lh.setUint16(26,name.length,true);
+    parts.push(new Uint8Array(lh.buffer), name, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0x0800,true); ch.setUint32(16,crc,true); ch.setUint32(20,data.length,true); ch.setUint32(24,data.length,true); ch.setUint16(28,name.length,true); ch.setUint32(42,off,true);
+    central.push(new Uint8Array(ch.buffer), name);
+    off += 30 + name.length + data.length;
+  });
+  const csize = central.reduce((a,b)=>a+b.length,0);
+  const end = new DataView(new ArrayBuffer(22)); end.setUint32(0,0x06054b50,true); end.setUint16(8,files.length,true); end.setUint16(10,files.length,true); end.setUint32(12,csize,true); end.setUint32(16,off,true);
+  return new Blob([...parts, ...central, new Uint8Array(end.buffer)], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+
+// --- DOCX ---
+const xe = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const run = (t, o={}) => `<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>${o.b?'<w:b/>':''}${o.i?'<w:i/>':''}${o.color?`<w:color w:val="${o.color}"/>`:''}<w:sz w:val="${o.sz||22}"/></w:rPr><w:t xml:space="preserve">${xe(t)}</w:t></w:r>`;
+const para = (t, o={}) => `<w:p><w:pPr><w:spacing w:after="${o.after??80}" w:line="264" w:lineRule="auto"/>${o.center?'<w:jc w:val="center"/>':''}</w:pPr>${run(t,o)}</w:p>`;
+function tbl(head, rows, small){
+  const sz = small ? 14 : 20; const n = head.length; const total = 10200; const first = small ? 2600 : Math.round(total/n);
+  const w = i => small ? (i===0 ? first : Math.floor((total-first)/(n-1))) : Math.floor(total/n);
+  const cell = (t,i,h) => `<w:tc><w:tcPr><w:tcW w:w="${w(i)}" w:type="dxa"/>${h?'<w:shd w:val="clear" w:color="auto" w:fill="F2F2F2"/>':''}<w:tcMar><w:left w:w="40" w:type="dxa"/><w:right w:w="40" w:type="dxa"/></w:tcMar></w:tcPr><w:p><w:pPr><w:spacing w:after="0"/>${i?'<w:jc w:val="center"/>':''}</w:pPr>${run(t,{sz, b:h})}</w:p></w:tc>`;
+  const B = '<w:tblBorders>' + ['top','left','bottom','right','insideH','insideV'].map(b=>`<w:${b} w:val="single" w:sz="4" w:space="0" w:color="808080"/>`).join('') + '</w:tblBorders>';
+  return `<w:tbl><w:tblPr><w:tblW w:w="${total}" w:type="dxa"/>${B}<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid>${head.map((_,i)=>`<w:gridCol w:w="${w(i)}"/>`).join('')}</w:tblGrid><w:tr>${head.map((t,i)=>cell(t,i,true)).join('')}</w:tr>${rows.map(r=>`<w:tr>${r.map((t,i)=>cell(t,i,false)).join('')}</w:tr>`).join('')}</w:tbl>${para('',{after:60})}`;
+}
+const drawing = (rid, id, cx, cy) => `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="${id}" name="Рисунок ${id}"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="${id}" name="chart${id}.png"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+async function toDocx(blocks){
+  let body = '', imgs = [], n = 0;
+  for (const b of blocks){
+    if (b.t === 'title'){ body += para('РАСЧЁТ ЗВУКОИЗОЛЯЦИИ ОГРАЖДАЮЩИХ КОНСТРУКЦИЙ', {b:true, sz:28, center:true, after:60}) + para(b.text, {b:true, sz:24, center:true, after:40}) + (b.sub?para(b.sub,{sz:20,center:true,after:200}):''); }
+    else if (b.t === 'h') body += para(b.text, {b:true, sz:24, after:120});
+    else if (b.t === 'p') body += para(b.text, {b:b.b});
+    else if (b.t === 'table') body += tbl(b.head, b.rows, b.small);
+    else if (b.t === 'img'){
+      try { const png = await svgToPng(b.svg, b.w, b.h); n++; imgs.push(png.bytes); const cx = 6120000, cy = Math.round(cx*b.h/b.w); body += drawing('rIdImg'+n, n, cx, cy); }
+      catch(e){ body += para('[график не удалось встроить в этом браузере]', {i:true}); }
+    }
+  }
+  const doc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1000" w:right="850" w:bottom="1000" w:left="850" w:header="400" w:footer="400" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${imgs.map((_,i)=>`<Relationship Id="rIdImg${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image${i+1}.png"/>`).join('')}</Relationships>`;
+  const files = [
+    {name:'[Content_Types].xml', data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`},
+    {name:'_rels/.rels', data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`},
+    {name:'word/document.xml', data:doc},
+    {name:'word/_rels/document.xml.rels', data:rels},
+    ...imgs.map((u,i)=>({name:`word/media/image${i+1}.png`, data:u}))
+  ];
+  return zip(files);
+}
+
+// --- PDF: свой рендер на canvas (A4) + минимальный PDF с JPEG-страницами ---
+async function toPdf(blocks){
+  const K = 2, PW = 794, PH = 1123, M = 48, CW = PW - 2*M;
+  const pages = []; let cv, g, y;
+  const newPage = () => { cv = document.createElement('canvas'); cv.width = PW*K; cv.height = PH*K; g = cv.getContext('2d'); g.scale(K,K); g.fillStyle = '#fff'; g.fillRect(0,0,PW,PH); g.textBaseline = 'top'; pages.push(cv); y = M; };
+  const font = (sz, b) => g.font = `${b?'bold ':''}${sz}px Arial, Helvetica, sans-serif`;
+  const wrap = (t, w) => { const words = String(t).split(' '); const lines = []; let cur = '';
+    words.forEach(wd => { const test = cur ? cur + ' ' + wd : wd; if (g.measureText(test).width > w && cur){ lines.push(cur); cur = wd; } else cur = test; }); if (cur) lines.push(cur); return lines.length ? lines : ['']; };
+  const ensure = h => { if (y + h > PH - M) newPage(); };
+  const text = (t, sz, b, align='left', gap=4) => { font(sz, b); const lh = sz*1.32; wrap(t, CW).forEach(l => { ensure(lh); g.fillStyle = '#111'; g.textAlign = align; g.fillText(l, align==='center' ? PW/2 : M, y); y += lh; }); g.textAlign = 'left'; y += gap; };
+  newPage();
+  for (const b of blocks){
+    if (b.t === 'title'){ text('РАСЧЁТ ЗВУКОИЗОЛЯЦИИ ОГРАЖДАЮЩИХ КОНСТРУКЦИЙ', 15, true, 'center', 2); text(b.text, 13, true, 'center', 2); if (b.sub) text(b.sub, 11, false, 'center', 12); }
+    else if (b.t === 'h'){ y += 6; text(b.text, 13, true); }
+    else if (b.t === 'p') text(b.text, 11, b.b, 'left', 3);
+    else if (b.t === 'table'){
+      const sz = b.small ? 7.5 : 10, n = b.head.length; const w0 = b.small ? 150 : CW/n, wi = b.small ? (CW - w0)/(n - 1) : CW/n;
+      const cw = i => i === 0 ? w0 : wi, cx = i => M + (i === 0 ? 0 : w0 + (i-1)*wi);
+      const row = (cells, head) => { font(sz, head); const lh = sz*1.25; const ls = cells.map((c,i) => wrap(c, cw(i) - 4)); const h = Math.max(...ls.map(l=>l.length))*lh + 4;
+        ensure(h); cells.forEach((c,i) => { if (head){ g.fillStyle = '#f2f2f2'; g.fillRect(cx(i), y, cw(i), h); } g.strokeStyle = '#888'; g.lineWidth = 0.6; g.strokeRect(cx(i), y, cw(i), h); g.fillStyle = '#111';
+          ls[i].forEach((l,k) => { g.textAlign = i ? 'center' : 'left'; g.fillText(l, i ? cx(i) + cw(i)/2 : cx(i) + 2, y + 2 + k*lh); }); }); g.textAlign = 'left'; y += h; };
+      row(b.head, true); b.rows.forEach(r => row(r, false)); y += 8;
+    }
+    else if (b.t === 'img'){
+      try { const p = await svgToPng(b.svg, b.w, b.h); const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = p.url; });
+        const h = CW*b.h/b.w; ensure(h + 6); g.drawImage(im, M, y, CW, h); y += h + 8; }
+      catch(e){ text('[график не удалось вставить в этом браузере]', 10, false); }
+    }
+  }
+  // сборка PDF
+  const enc = new TextEncoder(); const chunks = []; const offs = []; let pos = 0;
+  const add = d => { const u = typeof d === 'string' ? enc.encode(d) : d; chunks.push(u); pos += u.length; };
+  const jpgs = pages.map(c => { const b64 = c.toDataURL('image/jpeg', 0.9).split(',')[1]; const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) u[i] = bin.charCodeAt(i); return u; });
+  const N = pages.length; // объекты: 1 каталог, 2 pages, далее на страницу: page, contents, image
+  add('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+  const obj = (id, body) => { offs[id] = pos; add(`${id} 0 obj\n`); body(); add('\nendobj\n'); };
+  obj(1, () => add('<< /Type /Catalog /Pages 2 0 R >>'));
+  obj(2, () => add(`<< /Type /Pages /Count ${N} /Kids [${pages.map((_,i)=>`${3+i*3} 0 R`).join(' ')}] >>`));
+  pages.forEach((c,i) => {
+    const pid = 3+i*3, cid = pid+1, iid = pid+2; const W = 595.28, H = 841.89;
+    obj(pid, () => add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im${i} ${iid} 0 R >> >> /Contents ${cid} 0 R >>`));
+    const cs = `q ${W} 0 0 ${H} 0 0 cm /Im${i} Do Q`;
+    obj(cid, () => { add(`<< /Length ${cs.length} >>\nstream\n`); add(cs); add('\nendstream'); });
+    obj(iid, () => { add(`<< /Type /XObject /Subtype /Image /Width ${c.width} /Height ${c.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpgs[i].length} >>\nstream\n`); add(jpgs[i]); add('\nendstream'); });
+  });
+  const total = 3 + N*3; const xref = pos;
+  add(`xref\n0 ${total}\n0000000000 65535 f \n`);
+  for (let i = 1; i < total; i++) add(String(offs[i]).padStart(10,'0') + ' 00000 n \n');
+  add(`trailer\n<< /Size ${total} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob(chunks, {type:'application/pdf'});
+}
+async function makeReport(fmtName){
+  const msg = $('#repmsg'); msg.textContent = 'Готовлю отчёт…';
+  try {
+    const blocks = buildReport();
+    const blob = fmtName === 'docx' ? await toDocx(blocks) : await toPdf(blocks);
+    const fname = `Расчет звукоизоляции ${st.view==='wall'?'стены':'перекрытия'}.${fmtName}`;
+    const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
+    if (dl){ await dl.save({filename: fname, data: blob}); msg.textContent = 'Готово.'; }
+    else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; a.click(); msg.textContent = 'Файл сформирован.'; }
+  } catch(e){ msg.textContent = (e && e.code === 'declined') ? 'Скачивание отменено.' : 'Не удалось сформировать отчёт: ' + (e.message || e.code || e); }
+}
+
+render(); $('#howsteps').innerHTML = stepsHTML();
+window.addEventListener('hashchange', () => { if (/^#admin/.test(location.hash)) render(); });
+if (location.hash === '#how') setTimeout(()=>$('#how').scrollIntoView(),50);
+if (location.hash === '#selftest') { const out = []; const t = (n, ok, info) => out.push((ok?'OK  ':'FAIL') + ' ' + n + ' ' + (info||''));
+  let r = calcMassive({m:230,g:2300,hmm:100,K:1}); t('T1 СП РК В.1', r.R.join(',')==='35,35,35,35,35,35,37,39,41,43,45,47,49,51,53,55' && indexRw(r.R).Rw===44);
+  r = calcMassive({m:168,g:1400,hmm:120,K:1.2}); t('T2 СП РК В.2', r.R.join(',')==='34,34,34,34,34,36,38,40,42,44,46,48,50,52,54,56');
+  r = calcThin({name:'стекло',a:6000,b:12000,RB:35,RC:29,h:6}); t('T3 СП РК В.3', r.R.join(',')==='20,21.5,23,24.5,26,27.5,29,30.5,32,33.5,35,33,31,29,31.5,34');
+  const g850={id:'g',name:'ГКЛ',a:19000,b:38000,RB:34,RC:28,h:14,m:11.9}; r = calcDouble({leaf1:[g850],leaf2:[g850],dmm:100}); t('T4 СП РК В.4', r.R.join(',')==='19.5,22.5,25,28,31,34,36.5,39.5,42.5,44,45.5,47,47,44,41,43.5');
+  const g11={id:'g',name:'ГКЛ',a:19000,b:38000,RB:36,RC:30,h:10,m:11}; r = calcDouble({leaf1:[g11],leaf2:[g11],dmm:50,wool:{name:'ПП-80',h:50,m:4}}); t('T5 СП РК В.6', r.R.join(',')==='22,19.5,24.5,30,32.5,35,38,40.5,43,46,48.5,50,51.5,53,53,50');
+  t('T6 табл. А.1', indexRw([36,36,36,36,36,36,38,40,42,44,46,48,50,52,54,56]).Rw===45);
+  const l = indexLnw([59,60,65,65,63,62,60,58,54,50,46,43,43,41,37,33]); t('T7 табл. А.2', l.Lnw===56 && l.sum===31);
+  r = calcFloor({plate:{m:350,g:2500,hmm:140,K:1},elastic:[{mat:{name:'Пенотерм',src:'',E:[[2000,6.6e5,0.1],[5000,8.5e5,0.2]]},h:10}],m2:68.3,above:'',pUse:1317}); t('T9 Климухин пр.11', r.Lnw===60, 'Lnw='+r.Lnw);
+  r = calcFloor({plate:{m:450,g:2500,hmm:180,K:1},elastic:[{mat:{name:'Термофлекс',src:'',E:[[2000,4e5,0.03],[5000,4.8e5,0.1]]},h:12}],m2:32.5,above:'',pUse:1675}); t('Климухин пр.12', r.Lnw===59, 'Lnw='+r.Lnw);
+  $('#main').insertAdjacentHTML('afterbegin', '<div class="card"><b>Самопроверка</b><div id="tests">'+out.join('\n')+'</div></div>');
+}
+</script>
+</body>
+</html>
