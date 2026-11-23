@@ -332,6 +332,42 @@ function calcDouble({leaf1, leaf2, dmm, wool}){
   return {R, pts, steps, notes, method: wool ? 'Каркасно-обшивная конструкция с заполнением промежутка' : 'Каркасно-обшивная конструкция с воздушным промежутком', clause:`${SPRK}, прил. Б, пп. Б.1.6–Б.1.9`};
 }
 
+
+// ---------- M1 + облицовка на относе: Пособие к СП 51.13330 (СП 275.1325800), пп. 13.18–13.21, 13.40 ----------
+// ΔR(f) = −10·lg[(f0/f)^4 + σ] (ф. 13.25); f0 — резонанс облицовки на воздушном промежутке у массивной стены:
+// f0 = (1/2π)·√(K/m), K = ρc²/d  →  f0 = 60/√(m·d) (= ф. Б.6 СП РК при m1 → ∞). Плато −10·lg σ принято по п. 13.19
+// (облицовка повышает звукоизоляцию на 7–10 дБ; при точечных связях больше, чем при линейных).
+// Облицовки с двух сторон — суммарная добавка 2ΔR (п. 13.21).
+const LINING_MAX = {frame:7, free:10};
+function calcLined(base, linings, mount){
+  const r = calcMassive(base.p);
+  const dMax = LINING_MAX[mount] || 7, sigma = Math.pow(10, -dMax/10);
+  const steps = [...base.steps, ...r.steps], notes = [...base.notes, ...r.notes], pts = [...r.pts];
+  steps.push(`Облицовка на относе (Пособие к СП 51.13330, пп. 13.18–13.21): дополнительная изоляция ΔR(f) = −10·lg[(f0/f)⁴ + σ] (ф. 13.25), где f0 — частота собственных колебаний облицовки на воздушном промежутке, σ — коэффициент излучения через связи. Верхняя граница ΔR = −10·lg σ = ${dMax} дБ принята по п. 13.19 (облицовка повышает звукоизоляцию на 7–10 дБ; ${mount==='free'?'независимый каркас или виброкрепления — точечные связи, верхняя граница диапазона':'каркас с креплением к стене — линейные связи, нижняя граница диапазона'}).`);
+  const add = BANDS.map(() => 0);
+  linings.forEach((L, j) => {
+    const m = L.sheets.reduce((a,s)=>a+s.m,0), d = L.dmm/1000;
+    const f0 = 60/Math.sqrt(m*d);
+    const side = linings.length === 2 ? (j === 0 ? ' со стороны помещения А' : ' со стороны помещения Б') : '';
+    steps.push(`Облицовка${side}: ${L.sheets.map(s=>`${s.name} ${fmt(s.h)} мм`).join(' + ')}, m = ${fmt(m,1)} кг/м²; относ d = ${fmt(L.dmm)} мм${L.wool ? ` (заполнение: ${L.wool})` : ' (без заполнения)'}. f0 = 60/√(m·d) = 60/√(${fmt(m,1)}·${fmt(d,3)}) = ${fmt(f0,0)} Гц.`);
+    const dR = BANDS.map(f => f <= f0 ? 0 : -10*Math.log10(Math.pow(f0/f, 4) + sigma));
+    steps.push(`ΔR по полосам 100–3150 Гц: ${dR.map(v=>fmt(v,1)).join('; ')} дБ.`);
+    dR.forEach((v,i) => add[i] += v);
+    pts.push({n: linings.length === 2 ? 'f0' + (j+1) : 'f0', i: bandIdx(f0), R: r.R[Math.max(0, Math.min(15, bandIdx(f0)-I0))]});
+    if (m*d < 0.5) notes.push(`Облицовка${side}: m·d = ${fmt(m*d,2)} кг/м < 0,5 — облицовка слишком лёгкая или относ мал (Пособие, ф. 13.24); добавка может быть меньше расчётной.`);
+    if (f0 > 100) notes.push(`Облицовка${side}: f0 = ${fmt(f0,0)} Гц выше 100 Гц — резонанс в нормируемом диапазоне (Пособие, п. 13.25); увеличьте относ или массу облицовки.`);
+    const fgr = Math.min(...L.sheets.filter(s=>s.a).map(s => s.a/s.h));
+    if (nomOf(bandIdx(fgr)) < 1600) notes.push(`Облицовка${side}: граничная частота листа ${fmt(fgr,0)} Гц → ${nomOf(bandIdx(fgr))} Гц < 1600 Гц — по п. 13.19 Пособия ощутимого прироста может не быть на высоких частотах.`);
+    if (!L.wool) notes.push(`Облицовка${side}: промежуток без минваты — Пособие (п. 13.40) рекомендует заполнять его звукопоглощающим материалом.`);
+  });
+  if (linings.length === 2) steps.push('Облицовки с двух сторон: суммарная добавка ΔR = ΔR1 + ΔR2 (Пособие, п. 13.21).');
+  const R = r.R.map((v,i) => r05(v + add[i]));
+  pts.forEach(p => { const k = Math.round(p.i) - I0; if (k >= 0 && k < 16) p.R = R[k]; });
+  steps.push(`Частотная характеристика: R(f) = R стены(f) + ΔR(f).`);
+  notes.push('Расчёт облицовки — ориентировочный: в СП РК 2.04-105-2012 методики для облицовки массивной стены на относе нет, принята методика Пособия к СП 51.13330 (пп. 13.18–13.21). Косвенная передача звука через примыкающие конструкции не учитывается.');
+  return {R, pts, steps, notes, method:'Массивная стена с облицовкой на относе', clause:`${SPRK}, п. Б.1.2 + Пособие к СП 51.13330, пп. 13.18–13.21`};
+}
+
 // ---------- ПЕРЕКРЫТИЯ ----------
 // Табл. 15 Климухина = табл. 10 Zvukoizol (СП 23-103-2003): Rw перекрытия по Rw0 плиты и fр
 const T15_COLS = [43,46,49,52,55,57];
@@ -449,7 +485,7 @@ function calcFloor({plate, elastic, m2, above, roll, ceil, pUse}){
   return {Rw, Lnw, Rw0, Lnw0, slab, slabIx: ix, steps: stepsA, stepsI, notes, fr, f0, curveRw, curveLnw, tabs, method: elastic && elastic.length ? 'Перекрытие с полом на звукоизоляционном слое' : 'Перекрытие без звукоизоляционного слоя', clause:'Климухин А.А., табл. 15–18 (по СП 23-103-2003); Пособие к СП 51.13330, пп. 12.5–12.15'};
 }
 
-if (false && typeof module !== 'undefined') module.exports = {BANDS, I0, NOM, bandIdx, indexRw, indexLnw, calcMassive, calcThin, calcDouble, calcFloor, thinABCD, lnw0Of, T17, T15, fmt};
+if (false && typeof module !== 'undefined') module.exports = {BANDS, I0, NOM, bandIdx, indexRw, indexLnw, calcMassive, calcThin, calcDouble, calcFloor, calcLined, thinABCD, lnw0Of, T17, T15, fmt};
 
 // ============================================================
 // ДАННЫЕ: материалы и нормы. У каждой цифры — источник.
@@ -683,10 +719,27 @@ function solveWall(layers){
     if (items.length === 1 && items[0].a){ const s = items[0]; return {...calcThin({...s, name:s.name}), ...info}; }
     throw new Error('Несколько склеенных листов без промежутка: в СП РК 2.04-105-2012 методики для такой конструкции нет. Разделите листы воздушным промежутком.');
   }
+  const core = leaves.filter(g => g.items.some(l=>l.type==='massive'));
+  if (core.length === 1 && leaves.length >= 2){
+    const ci = groups.indexOf(core[0]);
+    const bad = () => { throw new Error('Облицовка на относе рассчитывается так: [листы] – [воздух/минвата] – массивная стена – [воздух/минвата] – [листы], облицовка с одной или с двух сторон, в облицовке 1–3 листа из табл. Б.4.'); };
+    const linings = [];
+    for (const dir of [-1, 1]){
+      const g1 = groups[ci+dir], g2 = groups[ci+2*dir];
+      if (!g1) continue;
+      if (g1.kind !== 'gap' || !g2 || g2.kind !== 'leaf' || groups[ci+3*dir]) bad();
+      if (g2.items.some(l=>l.type!=='thin' || !l.a) || g2.items.length > 3) bad();
+      const w = g1.items.filter(l=>l.type==='wool');
+      linings.push({sheets: g2.items, dmm: g1.items.reduce((a,l)=>a+l.h,0), wool: w.length ? w.map(l=>`${l.name} ${fmt(l.h)} мм`).join(' + ') : ''});
+    }
+    const base = massiveOf(core[0].items);
+    const r = calcLined(base, linings, st.wall.mount || 'frame');
+    if (L.some(l=>l.mfr)) r.notes.push('Часть параметров — по данным производителя (см. источники).');
+    return {...r, ...info};
+  }
   if (leaves.length === 2 && gaps.length === 1){
     const [l1, l2] = leaves.map(g=>g.items);
-    if ([...l1,...l2].some(l=>l.type==='massive'))
-      throw new Error('Двойная стена с массивным слоем (или массив + облицовка на относе): в СП РК 2.04-105-2012 есть методика только для двух тонких обшивок с промежутком (пп. Б.1.6–Б.1.9). Для облицовки массивной стены используйте систему ЗИПС-Модуль.');
+    if ([...l1,...l2].some(l=>l.type==='massive')) throw new Error('Две массивные стены с промежутком: в СП РК 2.04-105-2012 методики для такой двойной стены нет.');
     if (l1.length > 2 || l2.length > 2) throw new Error('В обшивке больше двух листов: методика п. Б.1.7 охватывает обшивки из одного или двух листов.');
     const gap = gaps[0].items; const dmm = gap.reduce((a,l)=>a+l.h,0);
     const wools = gap.filter(l=>l.type==='wool');
@@ -696,7 +749,7 @@ function solveWall(layers){
     if ([...l1,...l2].some(l=>l.mfr)) r.notes.push('Часть параметров — по данным производителя (см. источники).');
     return {...r, ...info};
   }
-  throw new Error('Для такой комбинации слоёв в СП РК 2.04-105-2012 нет расчётной методики. Поддерживаются: однородная массивная стена (в т.ч. оштукатуренная); один тонкий лист; две обшивки (1–2 листа) с воздушным промежутком и/или минватой; массивная стена + ЗИПС-Модуль.');
+  throw new Error('Для такой комбинации слоёв в СП РК 2.04-105-2012 нет расчётной методики. Поддерживаются: однородная массивная стена (в т.ч. оштукатуренная); один тонкий лист; две обшивки (1–2 листа) с воздушным промежутком и/или минватой; массивная стена с облицовкой на относе с одной или двух сторон; массивная стена + ЗИПС-Модуль.');
 }
 function massiveOf(items){
   const ms = items.filter(l=>l.type==='massive'); const thin = items.filter(l=>l.type==='thin');
@@ -924,6 +977,7 @@ function render(){
       <div class="ch"><b>Слои конструкции</b><span>${S.layers.length}/10 · ${kind==='wall'?'от помещения А к помещению Б':'сверху вниз'}</span></div>
       <div id="layers">${layerRows(kind)}</div>
       <div class="lfoot">${S.layers.length<10?`<button class="ghost" id="add">+ Добавить слой</button>`:'<span class="muted">Максимум 10 слоёв</span>'}
+      ${kind==='wall'?`<label class="pl">Крепление облицовки на относе <select id="mount"><option value="frame" ${(S.mount||'frame')==='frame'?'selected':''}>каркас с креплением к стене (ΔR до 7 дБ)</option><option value="free" ${S.mount==='free'?'selected':''}>независимый каркас / виброкрепления (ΔR до 10 дБ)</option></select> <small>(Пособие, п. 13.19)</small></label>`:''}
       ${kind==='floor'?`<label class="pl">Полезная нагрузка на пол <input type="number" id="puse" value="${S.pUse}" step="100" min="0"> Па <small>(2000 Па — Климухин, примеры 9–12)</small></label>`:''}</div>
     </div>
     <div class="go"><button class="primary" id="calc">ОК — рассчитать</button></div>
@@ -999,6 +1053,7 @@ document.addEventListener('change', e => {
   if (t.id === 'cat'){ st.cat = t.value; save(); render(); return; }
   if (t.id === 'ra'){ st[st.view].a = t.value; fixRooms(st.view); save(); render(); return; }
   if (t.id === 'rb'){ st[st.view].b = t.value; save(); render(); return; }
+  if (t.id === 'mount'){ st.wall.mount = t.value; st.res.wall = null; save(); render(); return; }
   if (t.id === 'puse'){ st.floor.pUse = Math.max(0, +t.value||0); st.res.floor = null; save(); render(); return; }
   if (t.classList.contains('lsel')){ const k = t.dataset.k, i = +t.dataset.i; st[k].layers[i] = {id:t.value, h:MAT[t.value].defH}; st.res[k] = null; save(); render(); return; }
   if (t.classList.contains('linp')){ const k = t.dataset.k, i = +t.dataset.i; st[k].layers[i].h = Math.max(0.5, +t.value||1); st.res[k] = null; save(); render(); return; }
@@ -1014,14 +1069,14 @@ function calc(){
 // ---------- оплата и разблокировка отчёта ----------
 const PAY = {kaspi:'https://pay.kaspi.kz/pay/esdg7ezb', wa:'', tg:'Nurdauletamirov', ig:'ictb_courses', hours:'9:00–20:00 (Астана)',
   price:{W:5000, A:2500, I:2500, F:5000}, name:{W:'Отчёт: стена / перегородка (Rw)', A:'Отчёт: перекрытие, воздушный шум (Rw)', I:'Отчёт: перекрытие, ударный шум (Lnw)', F:'Отчёт: перекрытие, воздушный + ударный шум'}};
-const ADMIN_PBKDF2 = {salt:'ictb-zvuk-adm-v2', it:150000, hash:'c6a115bc40219d39803a2120bf13d09ce399ad98b245357378b40c82ca6db151'}; const _unused = '9a98e7df7e4b6cbb979628f5b8954f775aba102dc02d35b176719e42b03ce14b';
+const ADMIN_PBKDF2 = {salt:'ictb-zvuk-adm-v2', it:150000, hash:'c6a115bc40219d39803a2120bf13d09ce399ad98b245357378b40c82ca6db151'};
 const SALT = 'ictb-zvuk-2026-r1';
 function h53(str, seed=0){ let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for (let i = 0, ch; i < str.length; i++){ ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); } h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909); h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909); return 4294967296*(2097151 & h2) + (h1>>>0); }
 const fmtT = n => n.toLocaleString('ru-RU').replace(/ /g,' ') + ' ₸';
 let product = 'W';
 function calcCode(){
   const k = st.view; const S = st[k];
-  const body = JSON.stringify({k, b:st.bld, c:st.cat, a:S.a, r:S.b, p:S.pUse||0, l:S.layers.map(l=>[l.id, MAT[l.id].fixH||l.h])});
+  const body = JSON.stringify({k, b:st.bld, c:st.cat, a:S.a, r:S.b, p:S.pUse||0, ...(k==='wall' && S.mount==='free' ? {mt:1} : {}), l:S.layers.map(l=>[l.id, MAT[l.id].fixH||l.h])});
   const h = h53(body).toString(36).toUpperCase().padStart(8,'0').slice(-8);
   return `${product}-${h.slice(0,4)}-${h.slice(4)}`;
 }
