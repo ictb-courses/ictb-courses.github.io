@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>ICTB · Калькулятор звукоизоляции</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -152,11 +154,13 @@ button.sm{padding:6px 10px;font-size:12px;box-shadow:none}
 <section class="foot" id="how">
   <h2>Как получить отчёт</h2>
   <div id="howsteps"></div>
-  <div class="contacts"><a class="btn wa" href="https://wa.me/77477323163">WhatsApp +7 747 732 31 63</a><a class="btn k" href="https://t.me/Nurdauletamirov">Telegram @Nurdauletamirov</a><a class="btn" href="https://instagram.com/ictb_courses">Instagram @ictb_courses</a><a class="btn" href="../">Курсы ICTB</a><span>Ответ 9:00–20:00 (Астана)</span></div>
+  <div class="contacts"><a class="btn wa" href="#" data-wa="" target="_blank" rel="noopener noreferrer">WhatsApp</a><a class="btn k" href="https://t.me/Nurdauletamirov" target="_blank" rel="noopener noreferrer">Telegram</a><a class="btn" href="https://instagram.com/ictb_courses" target="_blank" rel="noopener noreferrer">Instagram @ictb_courses</a><a class="btn" href="../">Курсы ICTB</a><span>Ответ 9:00–20:00 (Астана)</span></div>
   <div class="contacts"><span>Расчёт и график — бесплатно. Отчёт: стена — 5 000 ₸; перекрытие, воздушный шум — 2 500 ₸; ударный шум — 2 500 ₸.</span></div>
 </section></main></div>
 <div id="modal"></div>
 <script>
+// защита от встраивания чужим сайтом (кликджекинг) — только на собственном домене
+if (/github\.io$/.test(location.hostname) && window.top !== window.self) { try { window.top.location = window.self.location; } catch(e) { document.documentElement.innerHTML = ''; } }
 // ============================================================
 // ЯДРО РАСЧЁТА. Источники указаны у каждой таблицы/формулы.
 // ============================================================
@@ -1008,9 +1012,9 @@ function calc(){
 }
 
 // ---------- оплата и разблокировка отчёта ----------
-const PAY = {kaspi:'https://pay.kaspi.kz/pay/esdg7ezb', wa:'77477323163', tg:'Nurdauletamirov', ig:'ictb_courses', hours:'9:00–20:00 (Астана)',
+const PAY = {kaspi:'https://pay.kaspi.kz/pay/esdg7ezb', wa:'', tg:'Nurdauletamirov', ig:'ictb_courses', hours:'9:00–20:00 (Астана)',
   price:{W:5000, A:2500, I:2500, F:5000}, name:{W:'Отчёт: стена / перегородка (Rw)', A:'Отчёт: перекрытие, воздушный шум (Rw)', I:'Отчёт: перекрытие, ударный шум (Lnw)', F:'Отчёт: перекрытие, воздушный + ударный шум'}};
-const ADMIN_HASH = '9a98e7df7e4b6cbb979628f5b8954f775aba102dc02d35b176719e42b03ce14b';
+const ADMIN_PBKDF2 = {salt:'ictb-zvuk-adm-v2', it:150000, hash:'c6a115bc40219d39803a2120bf13d09ce399ad98b245357378b40c82ca6db151'}; const _unused = '9a98e7df7e4b6cbb979628f5b8954f775aba102dc02d35b176719e42b03ce14b';
 const SALT = 'ictb-zvuk-2026-r1';
 function h53(str, seed=0){ let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for (let i = 0, ch; i < str.length; i++){ ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); } h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909); h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909); return 4294967296*(2097151 & h2) + (h1>>>0); }
 const fmtT = n => n.toLocaleString('ru-RU').replace(/ /g,' ') + ' ₸';
@@ -1051,10 +1055,10 @@ function renderPay(){
     <p class="muted">Код привязан к этой конструкции и помещениям. Если поменяете слои, код изменится.</p>
     ${unl ? '' : `
     <div class="pstep"><span class="sn">01</span><div><b>Напишите нам код расчёта</b>
-      <div class="fmts"><a class="btn wa" href="https://wa.me/${PAY.wa}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">WhatsApp</a><a class="btn k" href="https://t.me/${PAY.tg}" target="_blank" rel="noopener">Telegram</a><a class="btn" href="https://ig.me/m/${PAY.ig}" target="_blank" rel="noopener">Instagram</a></div>
+      <div class="fmts"><a class="btn wa" href="#" data-wa="${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer">WhatsApp</a><a class="btn k" href="https://t.me/${PAY.tg}" target="_blank" rel="noopener noreferrer">Telegram</a><a class="btn" href="https://ig.me/m/${PAY.ig}" target="_blank" rel="noopener noreferrer">Instagram</a></div>
       <small>В WhatsApp сообщение с кодом подставится само. В Telegram и Instagram — вставьте скопированный код.</small></div></div>
     <div class="pstep"><span class="sn">02</span><div><b>Оплатите ${fmtT(price)}</b>
-      <div class="fmts"><a class="btn kaspi" href="${PAY.kaspi}" target="_blank" rel="noopener">Оплатить в Kaspi (резиденты КЗ)</a></div>
+      <div class="fmts"><a class="btn kaspi" href="${PAY.kaspi}" target="_blank" rel="noopener noreferrer">Оплатить в Kaspi (резиденты КЗ)</a></div>
       <small>В комментарии к оплате укажите код расчёта. Из другой страны — переводом на карту: номер из 16 цифр пришлю лично.</small></div></div>
     <div class="pstep"><span class="sn">03</span><div><b>Введите код разблокировки</b>
       <div class="ulk"><input id="ulk" inputmode="numeric" maxlength="7" placeholder="000000"><button class="primary" id="ulkbtn">Открыть отчёт</button></div>
@@ -1075,14 +1079,24 @@ document.addEventListener('click', e => {
   if (t.dataset.prod){ product = t.dataset.prod; renderPay(); }
   if (t.dataset.copy){ try { navigator.clipboard.writeText(t.dataset.copy).then(()=>{ t.textContent = 'Скопировано'; }, ()=>{ t.textContent = t.dataset.copy; }); } catch(err){ t.textContent = t.dataset.copy; } }
   if (t.id === 'ulkbtn'){ const code = calcCode(); const v = ($('#ulk').value||'').replace(/\D/g,'');
-    if (v === unlockOf(code)){ markUnlocked(code); renderPay(); } else $('#ulkmsg').innerHTML = '<span class="bad">Код не подходит к этому расчёту. Проверьте цифры или что конструкция не менялась.</span>'; }
+    const wait = guardCheck('ulk'); if (wait){ $('#ulkmsg').innerHTML = `<span class="bad">Слишком много неверных попыток. Повторите через ${wait} мин.</span>`; return; }
+    if (v === unlockOf(code)){ guardOk('ulk'); markUnlocked(code); renderPay(); } else { guardFail('ulk'); $('#ulkmsg').innerHTML = '<span class="bad">Код не подходит к этому расчёту. Проверьте цифры или что конструкция не менялась.</span>'; } }
   if (t.id === 'admgo'){ adminLogin(); }
   if (t.id === 'admcalc'){ adminShow(); }
 });
 
 // ---------- страница администратора (#admin) ----------
-async function sha256(s){ const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
-const adminOk = () => { try { return localStorage.getItem('zvuk-adm') === ADMIN_HASH; } catch(e){ return false; } };
+async function pbkdf2(pass){
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({name:'PBKDF2', hash:'SHA-256', salt:new TextEncoder().encode(ADMIN_PBKDF2.salt), iterations:ADMIN_PBKDF2.it}, key, 256);
+  return [...new Uint8Array(bits)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+const LS = { get(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } }, set(k, v){ try { localStorage.setItem(k, v); } catch(e){} } };
+// защита от перебора: после 5 ошибок — пауза, растущая с каждой серией
+function guardCheck(kind){ const until = +LS.get('zvuk-lock-'+kind, 0); const left = until - Date.now(); return left > 0 ? Math.ceil(left/60000) : 0; }
+function guardFail(kind){ const n = +LS.get('zvuk-fail-'+kind, 0) + 1; LS.set('zvuk-fail-'+kind, n); if (n % 5 === 0){ const mins = Math.min(60, 5 * Math.pow(2, n/5 - 1)); LS.set('zvuk-lock-'+kind, Date.now() + mins*60000); } }
+function guardOk(kind){ LS.set('zvuk-fail-'+kind, 0); LS.set('zvuk-lock-'+kind, 0); }
+const adminOk = () => LS.get('zvuk-adm', '') === ADMIN_PBKDF2.hash;
 function adminView(){
   $('#modal').classList.remove('on');
   const pre = (location.hash.match(/^#admin-(.+)$/)||[])[1] || '';
@@ -1098,15 +1112,26 @@ function adminView(){
   if (adminOk() && pre) adminShow();
 }
 async function adminLogin(){
-  const v = $('#admpass').value; const h = await sha256(v);
-  if (h === ADMIN_HASH){ try { localStorage.setItem('zvuk-adm', h); } catch(e){} adminView(); }
-  else $('#admmsg').innerHTML = '<span class="bad">Неверный пароль</span>';
+  const wait = guardCheck('adm'); if (wait){ $('#admmsg').innerHTML = `<span class="bad">Слишком много попыток. Повторите через ${wait} мин.</span>`; return; }
+  $('#admmsg').textContent = 'Проверяю…';
+  const h = await pbkdf2($('#admpass').value);
+  if (h === ADMIN_PBKDF2.hash){ guardOk('adm'); LS.set('zvuk-adm', h); adminView(); }
+  else { guardFail('adm'); $('#admmsg').innerHTML = '<span class="bad">Неверный пароль</span>'; }
 }
 function adminShow(){
   const code = ($('#admcode').value||'').trim().toUpperCase();
   const p = code[0]; const ok = /^[WAIF]-[0-9A-Z]{4}-[0-9A-Z]{4}$/.test(code);
   $('#admout').innerHTML = ok ? `<div class="admres"><span class="lbl">${esc(PAY.name[p])} · проверьте оплату ${fmtT(PAY.price[p])}</span><b>${unlockOf(code).replace(/(\d{3})(\d{3})/,'$1 $2')}</b><button class="ghost sm" data-copy="${unlockOf(code)}">Копировать</button></div>` : '<span class="bad">Код расчёта должен выглядеть так: W-XXXX-XXXX</span>';
 }
+
+// ---------- WhatsApp: номер не хранится в странице открытым текстом ----------
+const WA_ENC = 'MzYxMzIzNzc0Nzc=';
+const waNum = () => atob(WA_ENC).split('').reverse().join('');
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[data-wa]'); if (!a) return;
+  const txt = a.dataset.wa ? '?text=' + a.dataset.wa : '';
+  a.href = 'https://wa.me/' + waNum() + txt;
+}, true);
 
 // ============================================================
 // ОТЧЁТ (модель → DOCX / PDF)
